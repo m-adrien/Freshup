@@ -1,4 +1,6 @@
-FRESH UP
+________________________________________________________________________________________________________________
+_______________________________________________FRESH UP_________________________________________________________
+
 Le script freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide
 Par défaut le fichier :
           -Configure trois interfaces
@@ -9,10 +11,22 @@ Par défaut le fichier :
           -Sauvegarde les règles
           -Active le routage
           -Installe DHCP-serveur
-          -Configure DHCP serveur pour fournir deux plage d'adresses avec la passerelle correspondante
+          -Configure DHCP serveur pour fournir deux plages d'adresses avec les passerelles correspondante
           -Installe net-tools; ns-lookup
-Votre serveur sera alors prêt à faire à fonctionner ou y implémenter les derniers réglages.
+Votre serveur sera alors prêt à fonctionner ou y implémenter les derniers réglages.
 
-Pour une optimisation des réglages veuillez modifiez les options dans le fichier freshup.conf.
+Pour une optimisation des réglages veuillez modifiez les options dans le fichier conf.py
+
+OPTIONS :
+Le script installant l'ensemble des fonctionnalités vous pouvez utiliser les options suivantes afin d'en enlever.
+To remove some basic features use this :
+
+-d = DHCP
+
+-f = Firewall
+
+-n = NAT
+
+-t = tools : net-tools, ns-lookup
 
 *Ce script à été réalisé par M.Adrien dans le cadre d'un projet de formation Openclasroom
