@@ -50,7 +50,7 @@ verif = os.system('echo $?')
 # Si Verif = 1 = pas sur Debian = On arrête le programme
 if verif == 1:
    sys.exit([0])
-# ----Verifications OK + Conf Chargé --> C'est parti !---- #
+# ---Verification OK + Conf Chargé --> C'est parti !--- #
 
 # -----------Configuration des interfaces-----------#
 
@@ -69,9 +69,17 @@ interfaces.write("#Iface 3\nauto enp0s3\niface enp0s3 inet static\naddress {}\nn
                  .format(IP3, NM3, GW3))
 # Fermeture du fichier
 interfaces.close()
-
 # --- Configuration interface terminée --- #
 
+# ---------- Configuration NAT et FIREWALL ---------- #
 
+# NAT en postrouting
+if NAT1 == 1:
+    os.system('iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE')
+if NAT2 == 1:
+    os.system('iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE')
+if NAT3 == 1:
+    os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
+#
 
 
