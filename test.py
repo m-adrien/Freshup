@@ -1,4 +1,13 @@
+#!/usr/bin/python3.5
+# -*-coding:utf-8 -*
+
+# ---------- Module | Conf.ini | Options ---------- #
+
+# Import argparse pour les options
+import argparse
+# On importe la configuration
 import configparser
+# On recupère nos variables du fichier .ini
 config = configparser.ConfigParser()
 config.read('conf.ini')
 IP1 = config.get('INTERFACES', 'IP1')
@@ -26,7 +35,14 @@ DGATE1 = config.get('DHCP', 'DGATE1')
 DGATE2 = config.get('DHCP', 'DGATE2')
 DGATE3 = config.get('DHCP', 'DGATE3')
 
-print (GW2)
-print (END2)
-print (DGATE1)
-print (IP3)
+# Création des argument options :
+parser = argparse.ArgumentParser()
+# HELP OPTION
+parser.add_argument("-d", help="DHCP : will be not installed")
+parser.add_argument("-f", help="FIREWALL : will be not installed")
+parser.add_argument("-i", help="INTERFACES : will be not configured")
+parser.add_argument("-n", help="NAT : will be not configured")
+parser.add_argument("-f", help="net-tools and ns-lookup : will be not installed")
+parser.add_argument("-f", help="net-tools and ns-lookup : will be not installed")
+#
+parser.parse_args()

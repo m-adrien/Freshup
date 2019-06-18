@@ -39,47 +39,75 @@ DGATE3 = config.get('DHCP', 'DGATE3')
 
 # Création des argument options :
 parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--dhcp", help="DHCP : will be not installed", action="store_false")
+parser.add_argument("-f", "--firewall", help="FIREWALL : will be not installed", action="store_false")
+parser.add_argument("-i", "--interfaces", help="INTERFACES : will be not configured", action="store_false")
+parser.add_argument("-n", "--nat", help="NAT : will be not configured", action="store_false")
+parser.add_argument("-t", "--tools", help="net-tools ns-lookup and tcp-dump : will be not installed",
+                    action="store_false")
+parser.add_argument("-F", "--force", help="Force the installation on other distribution BE CAREFUL",
+                    action="store_false")
 parser.parse_args()
 
-# -----------Vérifions que nous sommes sur Debian----------- #
+# ----------- Vérifions que nous sommes sur Debian ----------- #
 
-# Création -> variable verif -> présence du mot debian dans la version de la distribution
+if arg.force:
+    # Création -> variable verif -> présence du mot debian dans la version de la distribution
+    os.system('uname -a | grep Debian')
+    verif = os.system('echo $?')
+    # Si Verif = 1 = pas sur Debian = On arrête le programme
+    if verif == 1:
+        sys.stdout.write('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution')
+        sys.exit([0])
+    # ---Verification OK + Conf Chargé --> C'est parti !--- #
 
-os.system('uname -a | grep Debian')
-verif = os.system('echo $?')
-# Si Verif = 1 = pas sur Debian = On arrête le programme
-if verif == 1:
-   sys.exit([0])
-# ---Verification OK + Conf Chargé --> C'est parti !--- #
+# ----------- Configuration des interfaces -----------#
 
-# -----------Configuration des interfaces-----------#
-
-# Ouverture et ecriture (erase) du fichier de conf
-interfaces = open("/etc/network/interfaces", "w")
-# Insertion de la conf de base
-interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
-# Insertion de la conf de l'iface 1
-interfaces.write("#Iface 1\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                 .format(IP1, NM1, GW1))
-# Insertion de la conf de l'iface 2
-interfaces.write("#Iface 2\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                 .format(IP2, NM2, GW2))
-# Insertion de la conf de l'iface 3
-interfaces.write("#Iface 3\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                 .format(IP3, NM3, GW3))
-# Fermeture du fichier
-interfaces.close()
-# --- Configuration interface terminée --- #
+if arg.interfaces:
+    # Ouverture et ecriture (erase) du fichier de conf
+    interfaces = open("/etc/network/interfaces", "w")
+    # Insertion de la conf de base
+    interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
+    # Insertion de la conf de l'iface 1
+    interfaces.write("#Iface 1\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                     .format(IP1, NM1, GW1))
+    # Insertion de la conf de l'iface 2
+    interfaces.write("#Iface 2\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                     .format(IP2, NM2, GW2))
+    # Insertion de la conf de l'iface 3
+    interfaces.write("#Iface 3\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                     .format(IP3, NM3, GW3))
+    # Fermeture du fichier
+    interfaces.close()
+    # --- Configuration interface terminée --- #
 
 # ---------- Configuration NAT et FIREWALL ---------- #
 
-# NAT en postrouting
-if NAT1 == 1:
-    os.system('iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE')
-if NAT2 == 1:
-    os.system('iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE')
-if NAT3 == 1:
-    os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
-#
+if arg.firewall:
+    x
+    x
+    x
 
+if arg.nat:
+    # NAT en postrouting
+    if NAT1 == 1:
+        os.system('iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE')
+    if NAT2 == 1:
+        os.system('iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE')
+    if NAT3 == 1:
+        os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
+#Iptalbes-persistent
+os.system('apt-get install iptables-persistent')
 
+# ---------- Configuration du serveur DHCP --------- #
+if arg.dhcp:
+    x
+    x
+    x
+
+# ---------- Redémmarage des services ----------#
+if arg.interfaces:
+    os.system('/etc/init.d/networking/restart')
+if arg.dhcp:
+    os.system('service dhcp restart')
+if
