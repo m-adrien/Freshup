@@ -46,6 +46,8 @@ ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDU !
 
 -r = Redémarre le système à la fin du programme.
 
+MERCI DE LANCER CE PROGRAMME EN ROOT
+
 *Ce script à été réalisé par M.Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
 
@@ -87,6 +89,8 @@ Other options :
 BE CAREFUL THIS OPTION MAY HAVE UNEXPECTED EFFECT ON THE SYSTEME !
 
 -r : reboot the system at the end of Freshup
+
+THIS PROGRAM NEED ROOT'S RIGHTS TO WORKS
 
 *This script was created by Mr. Adrien as part of an Openclassrooms training project
 *This program is freely accessible and modified under GNU license
