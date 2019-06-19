@@ -3,13 +3,14 @@
 
 # ---------- Module | Conf.ini | Options ---------- #
 
-print("Initialisation...")
 import argparse  # Importe argparse pour les options
 import os  # Importe commandes bash de l'os
 import configparser  # On importe la configuration et le module argument
 import threading  # Importe modul pour faire du thread
+import sys
 
 # Création des argument options :
+print("Initialisation...")
 config = configparser.ConfigParser()
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dhcp", help="DHCP : will be not installed", action="store_false")
@@ -45,9 +46,15 @@ FWS = config.get('FIREWALL', 'FWS')
 DHCP1 = config.get('DHCP', 'DHCP1')
 DHCP2 = config.get('DHCP', 'DHCP2')
 DHCP3 = config.get('DHCP', 'DHCP3')
-START1 = config.get('DHCP', 'START1')
-START2 = config.get('DHCP', 'START2')
-START3 = config.get('DHCP', 'START3')
+DHSUB1 = config.get('DHCP', 'SUBNET1')
+DHSUB2 = config.get('DHCP', 'SUBNET2')
+DHSUB3 = config.get('DHCP', 'SUBNET3')
+DHNM1 = config.get('DHCP', 'NETMASK1')
+DHNM2 = config.get('DHCP', 'NETMASK2')
+DHNM3 = config.get('DHCP', 'NETMASK3')
+ST1 = config.get('DHCP', 'START1')
+ST2 = config.get('DHCP', 'START2')
+ST3 = config.get('DHCP', 'START3')
 END1 = config.get('DHCP', 'END1')
 END2 = config.get('DHCP', 'END2')
 END3 = config.get('DHCP', 'END3')
@@ -93,7 +100,9 @@ if arg.interfaces:
 
 # ---------- Configuration NAT et FIREWALL ---------- #
 
+# -- Firewall -- #
 if arg.firewall:
+    print('Firewall configuration ...\n')
     # On met en DROP toutes les policy ipv4 et ipv6
     os.system('iptables -P INPUT DROP')
     os.system('iptables -P OUTPUT DROP')
@@ -156,6 +165,7 @@ if (arg.nat) or (arg.firewall):
 
 # ---------- Configuration du serveur DHCP --------- #
 if arg.dhcp:
+    print('DHCP-server setup...\n')
     # Création de la fonction d'install
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
@@ -164,9 +174,42 @@ if arg.dhcp:
     def wait_dhcp():
         thread = threading.Thread(target=dhcp_install)
         thread.start()
+    # Configuration de dhcpd.conf
+    dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
+    dhcpd.write('\nautoritative;\n\n')
+    if DHCP1 == 1:
+        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+                      .format(DHSUB1, DHNM1, ST1, END1, IP1))
+    if DHCP2 == 1:
+        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+                      .format(DHSUB2, DHNM2, ST2, END2, IP2))
+    if DHCP3 == 1:
+        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+                      .format(DHSUB3, DHNM3, ST3, END3, IP3))
+    dhcpd.close()
+    iscdhcpd = open("/etc/default/isc-dhcp-server", "w") # Config de l'écoute en fct des paramètres
+    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 0:
+        iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
+    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 0:
+        iscdhcpd.write('INTERFACESv4="enp0s8"\nINTERFACESv6=""\n')
+    if DHCP1 == 0 and DHCP2 == 0 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s9"\nINTERFACESv6=""\n')
+    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 0:
+        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8"\nINTERFACESv6=""\n')
+    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s9"\nINTERFACESv6=""\n')
+    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s8 enp0s9"\nINTERFACESv6=""\n')
+    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
-
-# ---------- Redémmarage des services ----------#
+# ---------- Activation du routage ---------- #
+sysctl = open("/etc/sysctl.conf", "a")
+sysctl.write('\nnet.ipv4.ip_forward=1\n')
+sysctl.close()
+os.system('sysctl -p /etc/sysctl.conf')
+print("Forwarding enable")
+# ---------- Redémmarage des services ---------- #
 # Si on ne force pas le reboot alors on relance les services qui ont été modifiés
 if not arg.restart:
     if arg.interfaces:
