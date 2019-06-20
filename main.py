@@ -89,6 +89,9 @@ if args.tools:
     def wait_ssh():      # Attente de la fin d'installation mis en thread par la fonction
         thread = threading.Thread(target=ssh_install)
         thread.start()
+        thread.join()
+    if __name__ == '__wait_ssh__':
+        wait_ssh()
 
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
@@ -97,6 +100,9 @@ if args.tools:
     def wait_nettools():      # Attente de la fin d'installation mis en thread par la fonction
         thread = threading.Thread(target=nettools_install)
         thread.start()
+        thread.join()
+    if __name__ == '__wait_nettools__':
+        wait_nettools()
 
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
@@ -105,6 +111,9 @@ if args.tools:
     def wait_dnsutils():      # Attente de la fin d'installation mis en thread par la fonction
         thread = threading.Thread(target=dnsutils_install)
         thread.start()
+        thread.join()
+    if __name__ == '__wait_dnsutils__':
+        wait_dnsutils()
 
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
@@ -113,6 +122,9 @@ if args.tools:
     def wait_tcpdump():      # Attente de la fin d'installation mis en thread par la fonction
         thread = threading.Thread(target=tcpdump_install)
         thread.start()
+        thread.join()
+    if __name__ == '__wait_tcpdump__':
+        wait_tcpdump()
     print('done.\n')
 
 # ----------- Configuration des interfaces -----------#
@@ -201,20 +213,29 @@ if (args.nat) or (args.firewall):
     def wait_iptables():      # Attente de la fin d'installation mis en thread par la fonction
         thread = threading.Thread(target=iptables_install)
         thread.start()
+        thread.join()
+    if __name__ == '__wait_iptables__':
+        wait_iptables()
     print('done.\n')
 
 # ---------- Setup & Configuration du serveur DHCP --------- #
 
 if args.dhcp:
     print('DHCP-server setup...\n')
+
     # Création de la fonction d'install
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
         os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
     # Attente de la fin d'installation mis en thread par la fonction
+
     def wait_dhcp():
         thread = threading.Thread(target=dhcp_install)
         thread.start()
+        thread.join()
+    if __name__ == '__wait_dhcp__':
+        wait_dhcp()
+
     # Configuration de dhcpd.conf
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
