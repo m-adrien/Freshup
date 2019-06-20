@@ -85,6 +85,7 @@ if args.tools:
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
         os.system('apt-get install -y openssh-server > /dev/null')
+        print('Ssh setup...')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=ssh_install)
@@ -96,6 +97,7 @@ if args.tools:
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
         os.system('apt-get install -qq -y net-tools > /dev/null')
+        print('Net-tools setup...')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=nettools_install)
@@ -107,6 +109,7 @@ if args.tools:
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
         os.system('apt-get install -qq -y dnsutils > /dev/null')
+        print('Dns-utils setup...')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=dnsutils_install)
@@ -118,6 +121,7 @@ if args.tools:
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
         os.system('apt-get install -qq -y tcpdump > /dev/null')
+        print('TcpDump setup...')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=tcpdump_install)
@@ -128,26 +132,50 @@ if args.tools:
     # ------------------------------------------------------------------------------- #
     print('done.\n')
 
-# --------------------------------- Configuration des interfaces -------------------------- #
+# --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
 
-if args.interfaces:
-    print('Interfaces configuration...')
-    # Ouverture et ecriture (erase) du fichier de conf
-    interfaces = open("/etc/network/interfaces", "w")
-    # Insertion de la conf de base
-    interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
-    # Insertion de la conf de l'iface 1
-    interfaces.write("#Iface 1\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                     .format(IP1, NM1, GW1))
-    # Insertion de la conf de l'iface 2
-    interfaces.write("#Iface 2\nauto enp0s8\niface enp0s8 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                     .format(IP2, NM2, GW2))
-    # Insertion de la conf de l'iface 3
-    interfaces.write("#Iface 3\nauto enp0s9\niface enp0s9 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                     .format(IP3, NM3, GW3))
-    # Fermeture du fichier
-    interfaces.close()
-    # --- Configuration interface terminée --- #
+if args.dhcp:
+    print('DHCP-server setup...\n')
+
+    def dhcp_install():
+        """Setup isc-dhcp-server on linux distribution which have aperture"""
+        os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
+
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
+        thread = threading.Thread(target=dhcp_install)
+        thread.start()
+        thread.join()
+    if __name__ == '__main__':
+        main()
+
+    # Configuration de dhcpd.conf
+    dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
+    dhcpd.write('\nautoritative;\n\n')
+    if DHCP1 == 1:
+        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+                      .format(DHSUB1, DHNM1, ST1, END1, IP1))
+    if DHCP2 == 1:
+        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+                      .format(DHSUB2, DHNM2, ST2, END2, IP2))
+    if DHCP3 == 1:
+        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+                      .format(DHSUB3, DHNM3, ST3, END3, IP3))
+    dhcpd.close()
+    iscdhcpd = open("/etc/default/isc-dhcp-server", "w") # Config de l'écoute en fct des paramètres
+    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 0:
+        iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
+    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 0:
+        iscdhcpd.write('INTERFACESv4="enp0s8"\nINTERFACESv6=""\n')
+    if DHCP1 == 0 and DHCP2 == 0 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s9"\nINTERFACESv6=""\n')
+    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 0:
+        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8"\nINTERFACESv6=""\n')
+    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s9"\nINTERFACESv6=""\n')
+    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s8 enp0s9"\nINTERFACESv6=""\n')
+    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 1:
+        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
 
 # ------------------------------------ Configuration FIREWALL ----------------------------- #
@@ -219,52 +247,6 @@ if (args.nat) or (args.firewall):
         main()
     print('done.\n')
 
-# --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
-
-if args.dhcp:
-    print('DHCP-server setup...\n')
-
-    def dhcp_install():
-        """Setup isc-dhcp-server on linux distribution which have aperture"""
-        os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
-
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
-        thread = threading.Thread(target=dhcp_install)
-        thread.start()
-        thread.join()
-    if __name__ == '__main__':
-        main()
-
-    # Configuration de dhcpd.conf
-    dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
-    dhcpd.write('\nautoritative;\n\n')
-    if DHCP1 == 1:
-        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
-                      .format(DHSUB1, DHNM1, ST1, END1, IP1))
-    if DHCP2 == 1:
-        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
-                      .format(DHSUB2, DHNM2, ST2, END2, IP2))
-    if DHCP3 == 1:
-        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
-                      .format(DHSUB3, DHNM3, ST3, END3, IP3))
-    dhcpd.close()
-    iscdhcpd = open("/etc/default/isc-dhcp-server", "w") # Config de l'écoute en fct des paramètres
-    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 0:
-        iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
-    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 0:
-        iscdhcpd.write('INTERFACESv4="enp0s8"\nINTERFACESv6=""\n')
-    if DHCP1 == 0 and DHCP2 == 0 and DHCP3 == 1:
-        iscdhcpd.write('INTERFACESv4="enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 0:
-        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8"\nINTERFACESv6=""\n')
-    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 1:
-        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 1:
-        iscdhcpd.write('INTERFACESv4="enp0s8 enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 1:
-        iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
-    print('done.\n')
-
 # ----------------------------------- Activation du routage ------------------------------- #
 
 sysctl = open("/etc/sysctl.conf", "a")
@@ -272,6 +254,28 @@ sysctl.write('\nnet.ipv4.ip_forward=1\n')
 sysctl.close()
 os.system('sysctl -p /etc/sysctl.conf')
 print("Forwarding enable")
+
+# --------------------------------- Configuration des interfaces -------------------------- #
+
+if args.interfaces:
+    print('Interfaces configuration...')
+    # Ouverture et ecriture (erase) du fichier de conf
+    interfaces = open("/etc/network/interfaces", "w")
+    # Insertion de la conf de base
+    interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
+    # Insertion de la conf de l'iface 1
+    interfaces.write("#Iface 1\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                     .format(IP1, NM1, GW1))
+    # Insertion de la conf de l'iface 2
+    interfaces.write("#Iface 2\nauto enp0s8\niface enp0s8 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                     .format(IP2, NM2, GW2))
+    # Insertion de la conf de l'iface 3
+    interfaces.write("#Iface 3\nauto enp0s9\niface enp0s9 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                     .format(IP3, NM3, GW3))
+    # Fermeture du fichier
+    interfaces.close()
+    # --- Configuration interface terminée --- #
+    print('done.\n')
 
 # -------------------------------- Redémmarage des services ------------------------------- #
 
