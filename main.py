@@ -127,10 +127,10 @@ if args.interfaces:
     interfaces.write("#Iface 1\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
                      .format(IP1, NM1, GW1))
     # Insertion de la conf de l'iface 2
-    interfaces.write("#Iface 2\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+    interfaces.write("#Iface 2\nauto enp0s8\niface enp0s8 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
                      .format(IP2, NM2, GW2))
     # Insertion de la conf de l'iface 3
-    interfaces.write("#Iface 3\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+    interfaces.write("#Iface 3\nauto enp0s9\niface enp0s9 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
                      .format(IP3, NM3, GW3))
     # Fermeture du fichier
     interfaces.close()
@@ -256,13 +256,13 @@ print("Forwarding enable")
 # ---------- Redémmarage des services ---------- #
 
 # Si on ne force pas le reboot alors on relance les services qui ont été modifiés
-if not args.restart:
+if args.restart:
     if args.interfaces:
         os.system('/etc/init.d/networking restart')
     if args.dhcp:
         os.system('service dhcp restart')
 # Si on reboot (-r) alors on ne relance pas les services.
-if args.restart:
+if not args.restart:
     os.system('init 6')
 print('Thank you to make a fresh up of your server !\n')
 
