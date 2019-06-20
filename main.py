@@ -1,7 +1,7 @@
 #!/usr/bin/python3.5
 # -*-coding:utf-8 -*
 
-# ---------- Module | Conf.ini | Options ---------- #
+# -------------------------------- Module | Conf.ini | Options ---------------------------- #
 
 import argparse  # Importation argparse pour les options
 import os  # Importation commandes bash de l'os
@@ -63,7 +63,7 @@ DGATE2 = config.get('DHCP', 'DGATE2')
 DGATE3 = config.get('DHCP', 'DGATE3')
 print('done.\n')
 
-# ----------- Vérifions que nous sommes sur Debian ----------- #
+# ---------------------------- Vérifions que nous sommes sur Debian ----------------------- #
 
 if args.force:
     # Création -> variable verif -> présence du mot debian dans la version de la distribution
@@ -77,57 +77,58 @@ if args.force:
     # ---Verification OK + Conf Chargé --> C'est parti !--- #
     print('done.\n')
 
-# ----------- Installation des outils ----------- #
+# ------------------------------------ Installation des outils ---------------------------- #
 
 if args.tools:
     print('Tools setup...\n')
-
+    # ------------------------------------------------------------------------------- #
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
         os.system('apt-get install -y openssh-server > /dev/null')
 
-    def wait_ssh():      # Attente de la fin d'installation mis en thread par la fonction
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=ssh_install)
         thread.start()
         thread.join()
-    if __name__ == '__wait_ssh__':
-        wait_ssh()
-
+    if __name__ == '__main__':
+        main()
+    # ------------------------------------------------------------------------------- #
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
         os.system('apt-get install -qq -y net-tools > /dev/null')
 
-    def wait_nettools():      # Attente de la fin d'installation mis en thread par la fonction
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=nettools_install)
         thread.start()
         thread.join()
-    if __name__ == '__wait_nettools__':
-        wait_nettools()
-
+    if __name__ == '__main__':
+        main()
+    # ------------------------------------------------------------------------------- #
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
         os.system('apt-get install -qq -y dnsutils > /dev/null')
 
-    def wait_dnsutils():      # Attente de la fin d'installation mis en thread par la fonction
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=dnsutils_install)
         thread.start()
         thread.join()
-    if __name__ == '__wait_dnsutils__':
-        wait_dnsutils()
-
+    if __name__ == '__main__':
+        main()
+    # ------------------------------------------------------------------------------- #
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
         os.system('apt-get install -qq -y tcpdump > /dev/null')
 
-    def wait_tcpdump():      # Attente de la fin d'installation mis en thread par la fonction
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=tcpdump_install)
         thread.start()
         thread.join()
-    if __name__ == '__wait_tcpdump__':
-        wait_tcpdump()
+    if __name__ == '__main__':
+        main()
+    # ------------------------------------------------------------------------------- #
     print('done.\n')
 
-# ----------- Configuration des interfaces -----------#
+# --------------------------------- Configuration des interfaces -------------------------- #
 
 if args.interfaces:
     print('Interfaces configuration...')
@@ -149,7 +150,7 @@ if args.interfaces:
     # --- Configuration interface terminée --- #
     print('done.\n')
 
-# ---------- Configuration FIREWALL ---------- #
+# ------------------------------------ Configuration FIREWALL ----------------------------- #
 
 if args.firewall:
     print('Firewall configuration ...\n')
@@ -189,7 +190,7 @@ if args.firewall:
     # FIN DE LA CONFIG PARE-FEU
     print('done.\n')
 
-# ---------- Configuration NAT ---------- #
+# -------------------------------------- Configuration NAT -------------------------------- #
 
 if args.nat:
     print('NAT configuration...\n')
@@ -201,7 +202,7 @@ if args.nat:
         os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
     print('done.\n')
 
-# ---------- Installation Iptables-persistent ---------- #
+# ------------------------------- Installation Iptables-persistent ------------------------ #
 
 if (args.nat) or (args.firewall):
     print('Iptables-persistent setup...\n')
@@ -210,31 +211,29 @@ if (args.nat) or (args.firewall):
         """Setup iptable-persistent on linux distribution which have aperture"""
         os.system('apt-get install -qq -y iptables-persistent > /dev/null')
 
-    def wait_iptables():      # Attente de la fin d'installation mis en thread par la fonction
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=iptables_install)
         thread.start()
         thread.join()
-    if __name__ == '__wait_iptables__':
-        wait_iptables()
+    if __name__ == '__main__':
+        main()
     print('done.\n')
 
-# ---------- Setup & Configuration du serveur DHCP --------- #
+# --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
 
 if args.dhcp:
     print('DHCP-server setup...\n')
 
-    # Création de la fonction d'install
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
         os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
-    # Attente de la fin d'installation mis en thread par la fonction
 
-    def wait_dhcp():
+    def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=dhcp_install)
         thread.start()
         thread.join()
-    if __name__ == '__wait_dhcp__':
-        wait_dhcp()
+    if __name__ == '__main__':
+        main()
 
     # Configuration de dhcpd.conf
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
@@ -266,7 +265,7 @@ if args.dhcp:
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
 
-# ---------- Activation du routage ---------- #
+# ----------------------------------- Activation du routage ------------------------------- #
 
 sysctl = open("/etc/sysctl.conf", "a")
 sysctl.write('\nnet.ipv4.ip_forward=1\n')
@@ -274,19 +273,40 @@ sysctl.close()
 os.system('sysctl -p /etc/sysctl.conf')
 print("Forwarding enable")
 
-# ---------- Redémmarage des services ---------- #
+# -------------------------------- Redémmarage des services ------------------------------- #
 
 # Si on ne force pas le reboot alors on relance les services qui ont été modifiés
 if args.restart:
+    # ----------------------------------------------------------------------- #
     if args.interfaces:
-        os.system('/etc/init.d/networking restart')
+        def network_restart():
+            """Restart the network interfaces on Debian"""
+            os.system('/etc/init.d/networking restart')
+
+        def main():  # Attente fin restart mis en thread par la fonction main
+            thread = threading.Thread(target=network_restart)
+            thread.start()
+            thread.join()
+        if __name__ == '__main__':
+            main()
+    # ----------------------------------------------------------------------- #
     if args.dhcp:
-        os.system('service dhcp restart')
+        def dhcp_restart():
+            """Restart the isc-dhcp-serveur"""
+            os.system('/etc/init.d/isc-dhcp-server restart')
+
+        def main():  # Attente de la fin du restart mis en thread par la fonction main
+            thread = threading.Thread(target=dhcp_restart)
+            thread.start()
+            thread.join()
+        if __name__ == '__main__':
+            main()
+    # ----------------------------------------------------------------------- #
 # Si on reboot (-r) alors on ne relance pas les services.
 if not args.restart:
     os.system('init 6')
 print('Thank you to make a fresh up of your server !\n')
 
-# --------------------- |||||||||||||||||| ---------------------- #
-# --------------------- |FIN DU PROGRAMME| ---------------------- #
-# --------------------- |||||||||||||||||| ---------------------- #
+# ---------------------------------- |||||||||||||||||| ----------------------------------- #
+# ---------------------------------- |FIN DU PROGRAMME| ----------------------------------- #
+# ---------------------------------- |||||||||||||||||| ----------------------------------- #

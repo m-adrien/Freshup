@@ -2,7 +2,7 @@
 import os
 import sys
 #from random import random
-#import threading
+import threading
 #import time
 #
 #result = None
@@ -24,3 +24,18 @@ import sys
 #    main()
 
 
+print('Iptables-persistent setup...\n')
+
+
+def iptables_install():
+    """Setup iptable-persistent on linux distribution which have aperture"""
+    os.system('C:\CS.exe')
+
+
+def main():  # Attente de la fin d'installation mis en thread par la fonction main
+    thread = threading.Thread(target=iptables_install)
+    thread.start()
+    thread.join()
+if __name__ == '__main__':
+    main()
+print('done.\n')
