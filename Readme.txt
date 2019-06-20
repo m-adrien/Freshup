@@ -2,6 +2,10 @@ ________________________________________________________________________________
 _______________________________________________FRESH UP_________________________________________________________
 
 _______________________________________________FRANCAIS_________________________________________________________
+Pour lancer ce programme vous devez avoir dans le même dossier freshup.py et conf.ini puis executer avec les
+privilèges root la commande suivante :
+python3 ./freshup.py
+
 Le script Freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide avec
 les outils essentiel à l'administration réseau.
 Par défaut le programme :
@@ -46,12 +50,13 @@ ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDU !
 
 -r = Redémarre le système à la fin du programme.
 
-MERCI DE LANCER CE PROGRAMME EN ROOT
-
 *Ce script à été réalisé par M.Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
 
 _______________________________________________ENGLISH________________________________________________________
+To run this programm you must have in the same directory freshup.py and conf.ini then with root acces enter :
+python3 ./freshup.py
+
 This program will simply and quily configure a freshly install of DEBIAN with in bonus somes essentiels
 sysadmin tools.
 By default the program will make :
