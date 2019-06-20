@@ -3,11 +3,11 @@
 
 # ---------- Module | Conf.ini | Options ---------- #
 
-import argparse  # Importe argparse pour les options
-import os  # Importe commandes bash de l'os
-import configparser  # On importe la configuration et le module argument
-import threading  # Importe modul pour faire du thread
-import sys
+import argparse  # Importation argparse pour les options
+import os  # Importation commandes bash de l'os
+import configparser  # Importation de la configuration et le module argument
+import threading  # Importation du module pour faire du thread
+import sys  # Importation des commandes sys essentiels
 
 # Création des argument options :
 print("Initialisation...")
@@ -18,7 +18,7 @@ parser.add_argument("-f", "--firewall", help="FIREWALL : will be not installed",
 parser.add_argument("-i", "--interfaces", help="INTERFACES : will be not configured", action="store_false")
 parser.add_argument("-n", "--nat", help="NAT : will be not configured", action="store_false")
 parser.add_argument("-r", "--restart", help="Sytème will be reboot at the end of FRESHUP", action="store_false")
-parser.add_argument("-t", "--tools", help="net-tools ns-lookup and tcp-dump : will be not installed",
+parser.add_argument("-t", "--tools", help="Net-tools dnsUtils tcp-dump and SSH: will be not installed",
                     action="store_false")
 parser.add_argument("-F", "--force", help="Force the installation on other distribution BE CAREFUL",
                     action="store_false")
@@ -76,6 +76,45 @@ if arg.force:
         sys.exit([0])
     # ---Verification OK + Conf Chargé --> C'est parti !--- #
     print('done.\n')
+
+# ----------- Installation des outils ----------- #
+
+if arg.tools:
+    print('Tools setup...\n')
+
+    def ssh_install():
+        """Setup openssh-server on linux distribution which have aperture"""
+        os.system('apt-get install -y openssh-server > /dev/null')
+
+    def wait_ssh():      # Attente de la fin d'installation mis en thread par la fonction
+        thread = threading.Thread(target=ssh_install)
+        thread.start()
+
+    def nettools_install():
+        """Setup net-tools on linux distribution which have aperture"""
+        os.system('apt-get install -qq -y net-tools > /dev/null')
+
+    def wait_nettools():      # Attente de la fin d'installation mis en thread par la fonction
+        thread = threading.Thread(target=nettools_install)
+        thread.start()
+
+    def dnsutils_install():
+        """Setup dnsutils on linux distribution which have aperture"""
+        os.system('apt-get install -qq -y dnsutils > /dev/null')
+
+    def wait_dnsutils():      # Attente de la fin d'installation mis en thread par la fonction
+        thread = threading.Thread(target=dnsutils_install)
+        thread.start()
+
+    def tcpdump_install():
+        """Setup tcpdump on linux distribution which have aperture"""
+        os.system('apt-get install -qq -y tcpdump > /dev/null')
+
+    def wait_tcpdump():      # Attente de la fin d'installation mis en thread par la fonction
+        thread = threading.Thread(target=tcpdump_install)
+        thread.start()
+    print('done.\n')
+
 # ----------- Configuration des interfaces -----------#
 
 if arg.interfaces:
@@ -98,9 +137,8 @@ if arg.interfaces:
     # --- Configuration interface terminée --- #
     print('done.\n')
 
-# ---------- Configuration NAT et FIREWALL ---------- #
+# ---------- Configuration FIREWALL ---------- #
 
-# -- Firewall -- #
 if arg.firewall:
     print('Firewall configuration ...\n')
     # On met en DROP toutes les policy ipv4 et ipv6
@@ -139,7 +177,8 @@ if arg.firewall:
     # FIN DE LA CONFIG PARE-FEU
     print('done.\n')
 
-# -- NAT en postrouting -- #
+# ---------- Configuration NAT ---------- #
+
 if arg.nat:
     print('NAT configuration...\n')
     if NAT1 == 1:
@@ -150,26 +189,28 @@ if arg.nat:
         os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
     print('done.\n')
 
-# -- Iptalbes-persistent -- #
+# ---------- Installation Iptables-persistent ---------- #
+
 if (arg.nat) or (arg.firewall):
     print('Iptables-persistent setup...\n')
-    # Création de la fonction d'install
+
     def iptables_install():
         """Setup iptable-persistent on linux distribution which have aperture"""
-        os.system('apt-get install -y iptables-persistent')
-    # Attente de la fin d'installation mis en thread par la fonction
-    def wait_iptables():
+        os.system('apt-get install -qq -y iptables-persistent > /dev/null')
+
+    def wait_iptables():      # Attente de la fin d'installation mis en thread par la fonction
         thread = threading.Thread(target=iptables_install)
         thread.start()
     print('done.\n')
 
-# ---------- Configuration du serveur DHCP --------- #
+# ---------- Setup & Configuration du serveur DHCP --------- #
+
 if arg.dhcp:
     print('DHCP-server setup...\n')
     # Création de la fonction d'install
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
-        os.system('apt-get install -y isc-dhcp-serveur')
+        os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
     # Attente de la fin d'installation mis en thread par la fonction
     def wait_dhcp():
         thread = threading.Thread(target=dhcp_install)
@@ -203,13 +244,17 @@ if arg.dhcp:
     if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 1:
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
+
 # ---------- Activation du routage ---------- #
+
 sysctl = open("/etc/sysctl.conf", "a")
 sysctl.write('\nnet.ipv4.ip_forward=1\n')
 sysctl.close()
 os.system('sysctl -p /etc/sysctl.conf')
 print("Forwarding enable")
+
 # ---------- Redémmarage des services ---------- #
+
 # Si on ne force pas le reboot alors on relance les services qui ont été modifiés
 if not arg.restart:
     if arg.interfaces:

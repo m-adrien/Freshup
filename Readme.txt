@@ -35,7 +35,7 @@ Utilisez les options suivantes afin d’empêcher leur installation :
 
 -n = NAT
 
--t = tools : net-tools, dnsutils, tcpdump
+-t = tools : net-tools, dnsutils, tcpdump, SSH
 
 	Si -f et -n sont activé de concert iptables persistent ne sera
 	pas installé et la configuration de iptables non sauvegardée
@@ -82,7 +82,7 @@ To prevent some basic features from setup use these options :
 
 -n = NAT
 
--t = tools : net-tools, dnsutils, tcpdump
+-t = tools : net-tools, dnsutils, tcpdump, SSH
 
 Other options :
 -F : force the installation on other distrubutions
