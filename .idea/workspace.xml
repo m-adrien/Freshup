@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ff310d0f-c84f-4b37-afbb-120f3c3942b5" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Readme.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="ff310d0f-c84f-4b37-afbb-120f3c3942b5" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,18 +22,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="675">
-              <caret line="266" column="56" lean-forward="true" selection-start-line="266" selection-start-column="56" selection-end-line="266" selection-end-column="56" />
+            <state relative-caret-position="750">
+              <caret line="30" column="37" lean-forward="true" selection-end-line="271" />
               <folding>
                 <element signature="e#98#154#0" expanded="true" />
-                <element signature="e#2743#3231#0" />
-                <element signature="e#3368#3776#0" />
-                <element signature="e#3312#4315#0" />
-                <element signature="e#4414#6115#0" />
-                <element signature="e#6162#6496#0" />
-                <element signature="e#7820#8228#0" />
-                <element signature="e#7083#9099#0" />
-                <element signature="e#9468#9597#0" />
               </folding>
             </state>
           </provider>
@@ -55,8 +43,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Readme.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="751">
-              <caret line="84" column="46" selection-start-line="84" selection-start-column="46" selection-end-line="84" selection-end-column="46" />
+            <state relative-caret-position="598">
+              <caret line="69" column="25" lean-forward="true" selection-start-line="69" selection-start-column="25" selection-end-line="69" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -226,12 +214,12 @@
       <workItem from="1560813822593" duration="109000" />
       <workItem from="1560847000100" duration="14020000" />
       <workItem from="1560965304808" duration="15715000" />
-      <workItem from="1561013518468" duration="4258000" />
+      <workItem from="1561013518468" duration="4721000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="58631000" />
+    <option name="totallyTimeSpent" value="59094000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
@@ -284,6 +272,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Readme.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="598">
+          <caret line="69" column="25" lean-forward="true" selection-start-line="69" selection-start-column="25" selection-end-line="69" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/conf.ini">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="833">
@@ -291,27 +286,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Readme.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="751">
-          <caret line="84" column="46" selection-start-line="84" selection-start-column="46" selection-end-line="84" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="675">
-          <caret line="266" column="56" lean-forward="true" selection-start-line="266" selection-start-column="56" selection-end-line="266" selection-end-column="56" />
+        <state relative-caret-position="750">
+          <caret line="30" column="37" lean-forward="true" selection-end-line="271" />
           <folding>
             <element signature="e#98#154#0" expanded="true" />
-            <element signature="e#2743#3231#0" />
-            <element signature="e#3368#3776#0" />
-            <element signature="e#3312#4315#0" />
-            <element signature="e#4414#6115#0" />
-            <element signature="e#6162#6496#0" />
-            <element signature="e#7820#8228#0" />
-            <element signature="e#7083#9099#0" />
-            <element signature="e#9468#9597#0" />
           </folding>
         </state>
       </provider>
