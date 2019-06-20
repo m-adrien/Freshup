@@ -22,7 +22,7 @@ parser.add_argument("-t", "--tools", help="Net-tools dnsUtils tcp-dump and SSH: 
                     action="store_false")
 parser.add_argument("-F", "--force", help="Force the installation on other distribution BE CAREFUL",
                     action="store_false")
-parser.parse_args()
+args = parser.parse_args()
 
 # On recupère nos variables du fichier .ini
 config.read('conf.ini')
@@ -65,7 +65,7 @@ print('done.\n')
 
 # ----------- Vérifions que nous sommes sur Debian ----------- #
 
-if arg.force:
+if args.force:
     # Création -> variable verif -> présence du mot debian dans la version de la distribution
     print('Verification...')
     os.system('uname -a | grep Debian')
@@ -79,7 +79,7 @@ if arg.force:
 
 # ----------- Installation des outils ----------- #
 
-if arg.tools:
+if args.tools:
     print('Tools setup...\n')
 
     def ssh_install():
@@ -117,7 +117,7 @@ if arg.tools:
 
 # ----------- Configuration des interfaces -----------#
 
-if arg.interfaces:
+if args.interfaces:
     print('Interfaces configuration...')
     # Ouverture et ecriture (erase) du fichier de conf
     interfaces = open("/etc/network/interfaces", "w")
@@ -139,7 +139,7 @@ if arg.interfaces:
 
 # ---------- Configuration FIREWALL ---------- #
 
-if arg.firewall:
+if args.firewall:
     print('Firewall configuration ...\n')
     # On met en DROP toutes les policy ipv4 et ipv6
     os.system('iptables -P INPUT DROP')
@@ -179,7 +179,7 @@ if arg.firewall:
 
 # ---------- Configuration NAT ---------- #
 
-if arg.nat:
+if args.nat:
     print('NAT configuration...\n')
     if NAT1 == 1:
         os.system('iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE')
@@ -191,7 +191,7 @@ if arg.nat:
 
 # ---------- Installation Iptables-persistent ---------- #
 
-if (arg.nat) or (arg.firewall):
+if (args.nat) or (args.firewall):
     print('Iptables-persistent setup...\n')
 
     def iptables_install():
@@ -205,7 +205,7 @@ if (arg.nat) or (arg.firewall):
 
 # ---------- Setup & Configuration du serveur DHCP --------- #
 
-if arg.dhcp:
+if args.dhcp:
     print('DHCP-server setup...\n')
     # Création de la fonction d'install
     def dhcp_install():
@@ -256,13 +256,13 @@ print("Forwarding enable")
 # ---------- Redémmarage des services ---------- #
 
 # Si on ne force pas le reboot alors on relance les services qui ont été modifiés
-if not arg.restart:
-    if arg.interfaces:
+if not args.restart:
+    if args.interfaces:
         os.system('/etc/init.d/networking restart')
-    if arg.dhcp:
+    if args.dhcp:
         os.system('service dhcp restart')
 # Si on reboot (-r) alors on ne relance pas les services.
-if arg.restart:
+if args.restart:
     os.system('init 6')
 print('Thank you to make a fresh up of your server !\n')
 
