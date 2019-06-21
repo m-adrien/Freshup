@@ -2,16 +2,18 @@ ________________________________________________________________________________
 _______________________________________________FRESH UP_________________________________________________________
 
 _______________________________________________FRANCAIS_________________________________________________________
-Pour lancer ce programme vous devez avoir dans le même dossier freshup.py et conf.ini puis executer avec les
-privilèges root la commande suivante :
-python3 ./freshup.py
+Pour lancer ce programme vous devez :
+1) Avoir les droits root
+2) Avoir dans le même dossier freshup.py et conf.ini
+3) Vous placer dans ce dossier avec la commande "cd /chemin/vers/votre/fichier/"
+4) Executer la commande suivante : "python3 freshup.py" (sans les guillemets)
 
 Le script Freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide avec
-les outils essentiel à l'administration réseau.
+les outils essentiels à l'administration réseau.
 Par défaut le programme :
           -Configure trois interfaces
           -Une route pour chacune d'elles
-          -Active le parefeu en ne laissant passer que : icmp ssh http https dns et established
+          -Active le pare-feu en ne laissant passer que : icmp ssh http https dns et established
           -Active un NAT en sorite de l'interface n°1
           -Installe Iptables-persistent
           -Sauvegarde les règles
@@ -25,50 +27,52 @@ Par défaut le programme :
           -Installe tcp-dump
 Votre serveur sera alors prêt à fonctionner ou y implémenter les derniers réglages.
 
-Pour une optimisation des réglages veuillez modifiez les options dans le fichier conf.ini
+Pour une optimisation des réglages veuillez modifier les options dans le fichier conf.ini
 
 OPTIONS :
 Le script installant l'ensemble des fonctionnalités permises.
-Utilisez les options suivantes afin d’empêcher leur installation :
+Utilisez les options suivantes afin d’empêcher l'installation des fonctionalités non-voulues :
 
 -d = DHCP
 
 -f = Firewall
 
--i = interfaces : ne seront pas configurées
+-i = Interfaces : ne seront pas configurées
 
 -n = NAT
 
 -t = tools : net-tools, dnsutils, tcpdump, SSH
 
-	Si -f et -n sont activé de concert iptables persistent ne sera
+	Si -f et -n sont activées de concert iptables persistent ne sera
 	pas installé et la configuration de iptables non sauvegardée
 
 Autres Options :
 -F = Forcer l'installation sur une autre distribution que Debian
-ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDU !
+ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDUS !
 
--r = Redémarre le système à la fin du programme.
+-r = Redémarrer le système à la fin du programme.
 
-*Ce script à été réalisé par M.Adrien dans le cadre d'un projet de formation Openclassrooms
+*Ce script à été réalisé par Mr M Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
 
 _______________________________________________ENGLISH________________________________________________________
-To run this programm you must have in the same directory freshup.py and conf.ini then with root acces enter :
-python3 ./freshup.py
+To run this programm you need to :
+1)Get the root's rights
+2)Have in the same directory freshup.py and conf.ini
+3)Move into this directory with "cd /path/to/your/file/"
+4)Enter this command "python3 freshup.py" (without the "")
 
-This program will simply and quily configure a freshly install of DEBIAN with in bonus somes essentiels
-sysadmin tools.
+This program will simply and quickly configure a freshly setup of DEBIAN with somes essentials sysadmin tools.
 By default the program will make :
           -Three network interfaces configuration
           -One gateway for each
           -Firewall activation and allow just : icmp ssh http https dns and established
-          -Activate a postrouting NAT  on the first interface
+          -Activate a postrouting NAT on the first interface
           -Iptables-persistent setup
           -Save the new rules
           -Routing Activation
           -DHCP-serveur setup
-          -DHCP configuration on Ifaces 2 and 3 with gateway configuration for theme
+          -DHCP configuration on Ifaces 2 and 3 with gateway configuration for them
           -SSH setup
           -Net-tools setup
           -Dns-utils setup
@@ -77,13 +81,13 @@ Your server will be ready to play, however for a finer tune please edit the conf
 
 OPTIONS :
 The programm will (by default) install the full features.
-To prevent some basic features from setup use these options :
+To prevent some basics features from setup use these options :
 
 -d = DHCP
 
 -f = Firewall
 
--i = interfaces : will be not configure
+-i = interfaces : will not be configured
 
 -n = NAT
 
@@ -97,5 +101,5 @@ BE CAREFUL THIS OPTION MAY HAVE UNEXPECTED EFFECT ON THE SYSTEME !
 
 THIS PROGRAM NEED ROOT'S RIGHTS TO WORKS
 
-*This script was created by Mr. Adrien as part of an Openclassrooms training project
+*This script was created by Mr. M Adrien for an Openclassrooms training project
 *This program is freely accessible and modified under GNU license
