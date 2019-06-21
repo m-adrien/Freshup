@@ -24,7 +24,7 @@ parser.add_argument("-F", "--force", help="Force the installation on other distr
                     action="store_false")
 args = parser.parse_args()
 
-# On recupère nos variables du fichier .ini
+# On récupère nos variables du fichier .ini
 config.read('conf.ini')
 IP1 = config.get('INTERFACES', 'IP1')
 IP2 = config.get('INTERFACES', 'IP2')
@@ -66,7 +66,7 @@ print('done.\n')
 # ---------------------------- Vérifions que nous sommes sur Debian ----------------------- #
 
 if args.force:
-    # Création -> variable verif -> présence du mot debian dans la version de la distribution
+    # Création -> variable verif -> présence du mot Debian dans la version de la distribution
     print('Verification...')
     os.system('uname -a | grep Debian')
     verif = os.system('echo $?')
@@ -74,7 +74,7 @@ if args.force:
     if verif == 1:
         sys.stdout.write('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution')
         sys.exit([0])
-    # ---Verification OK + Conf Chargé --> C'est parti !--- #
+    # ---Vérification OK + Conf Chargée --> C'est partit !--- #
     print('done.\n')
 
 # ------------------------------------ Installation des outils ---------------------------- #
@@ -82,48 +82,52 @@ if args.force:
 if args.tools:
     print('Tools setup...\n')
     # ------------------------------------------------------------------------------- #
+
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
         os.system('apt-get install -y openssh-server > /dev/null')
         print('Ssh setup...')
 
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
+    def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=ssh_install)
         thread.start()
         thread.join()
     if __name__ == '__main__':
         main()
     # ------------------------------------------------------------------------------- #
+
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
         os.system('apt-get install -qq -y net-tools > /dev/null')
         print('Net-tools setup...')
 
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
+    def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=nettools_install)
         thread.start()
         thread.join()
     if __name__ == '__main__':
         main()
     # ------------------------------------------------------------------------------- #
+
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
         os.system('apt-get install -qq -y dnsutils > /dev/null')
         print('Dns-utils setup...')
 
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
+    def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dnsutils_install)
         thread.start()
         thread.join()
     if __name__ == '__main__':
         main()
     # ------------------------------------------------------------------------------- #
+
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
         os.system('apt-get install -qq -y tcpdump > /dev/null')
         print('TcpDump setup...')
 
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
+    def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=tcpdump_install)
         thread.start()
         thread.join()
@@ -141,7 +145,7 @@ if args.dhcp:
         """Setup isc-dhcp-server on linux distribution which have aperture"""
         os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
 
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
+    def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dhcp_install)
         thread.start()
         thread.join()
@@ -151,30 +155,30 @@ if args.dhcp:
     # Configuration de dhcpd.conf
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
-    if DHCP1 == 1:
+    if DHCP1 == '1':
         dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
-                      .format(DHSUB1, DHNM1, ST1, END1, IP1))
-    if DHCP2 == 1:
+                    .format(DHSUB1, DHNM1, ST1, END1, IP1))
+    if DHCP2 == '1':
         dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
-                      .format(DHSUB2, DHNM2, ST2, END2, IP2))
-    if DHCP3 == 1:
+                    .format(DHSUB2, DHNM2, ST2, END2, IP2))
+    if DHCP3 == '1':
         dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
-                      .format(DHSUB3, DHNM3, ST3, END3, IP3))
+                    .format(DHSUB3, DHNM3, ST3, END3, IP3))
     dhcpd.close()
-    iscdhcpd = open("/etc/default/isc-dhcp-server", "w") # Config de l'écoute en fct des paramètres
-    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 0:
+    iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fct des paramètres
+    if DHCP1 == '1' and DHCP2 == '0' and DHCP3 == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
-    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 0:
+    if DHCP1 == '0' and DHCP2 == '1' and DHCP3 == '0':
         iscdhcpd.write('INTERFACESv4="enp0s8"\nINTERFACESv6=""\n')
-    if DHCP1 == 0 and DHCP2 == 0 and DHCP3 == 1:
+    if DHCP1 == '0' and DHCP2 == '0' and DHCP3 == '1':
         iscdhcpd.write('INTERFACESv4="enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 0:
+    if DHCP1 == '1' and DHCP2 == '1' and DHCP3 == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8"\nINTERFACESv6=""\n')
-    if DHCP1 == 1 and DHCP2 == 0 and DHCP3 == 1:
+    if DHCP1 == '1' and DHCP2 == '0' and DHCP3 == '1':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == 0 and DHCP2 == 1 and DHCP3 == 1:
+    if DHCP1 == '0' and DHCP2 == '1' and DHCP3 == '1':
         iscdhcpd.write('INTERFACESv4="enp0s8 enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == 1 and DHCP2 == 1 and DHCP3 == 1:
+    if DHCP1 == '1' and DHCP2 == '1' and DHCP3 == '1':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
 
@@ -190,27 +194,27 @@ if args.firewall:
     os.system('ip6tables -P OUTPUT DROP')
     os.system('ip6tables -P FORWARD DROP')
     # On autorise en IPv4
-    if FWE == 1:
+    if FWE == '1':
         # Connections déjà établies
         os.system('iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
         os.system('iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
         os.system('iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-    if FWP == 1:
+    if FWP == '1':
         # Ping : icmp
         os.system('iptables -A INPUT -p icmp -j ACCEPT')
         os.system('iptables -A OUTPUT -p icmp -j ACCEPT')
         os.system('iptables -A FORWARD -p icmp -j ACCEPT')
-    if FWD == 1:
+    if FWD == '1':
         # DNS : udp 53
         os.system('iptables -A INPUT -p udp --dport 53 -j ACCEPT')
         os.system('iptables -A OUTPUT -p udp --dport 53 -j ACCEPT')
         os.system('iptables -A FORWARD -p udp --dport 53 -j ACCEPT')
-    if FWH == 1:
+    if FWH == '1':
         # HTTP : tcp 80
         os.system('iptables -A INPUT -p tcp --dport 80 -j ACCEPT')
         os.system('iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT')
         os.system('iptables -A FORWARD -p tcp --dport 80 -j ACCEPT')
-    if FWS == 1:
+    if FWS == '1':
         # HTTPS : tcp 443
         os.system('iptables -A INPUT -p tcp --dport 443 -j ACCEPT')
         os.system('iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT')
@@ -222,17 +226,17 @@ if args.firewall:
 
 if args.nat:
     print('NAT configuration...\n')
-    if NAT1 == 1:
+    if NAT1 == '1':
         os.system('iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE')
-    if NAT2 == 1:
+    if NAT2 == '1':
         os.system('iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE')
-    if NAT3 == 1:
+    if NAT3 == '1':
         os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
     print('done.\n')
 
 # ------------------------------- Installation Iptables-persistent ------------------------ #
 
-if (args.nat) or (args.firewall):
+if args.nat or args.firewall:
     print('Iptables-persistent setup...\n')
 
     def iptables_install():
