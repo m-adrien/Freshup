@@ -156,13 +156,13 @@ if args.dhcp:
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
     if DHCP1 == '1':
-        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+        dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                     .format(DHSUB1, DHNM1, ST1, END1, IP1))
     if DHCP2 == '1':
-        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+        dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                     .format(DHSUB2, DHNM2, ST2, END2, IP2))
     if DHCP3 == '1':
-        dhcpd.write("subnet {} netmask {} {\n  range {} {};\n  option routers {};\n}\n\n"
+        dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                     .format(DHSUB3, DHNM3, ST3, END3, IP3))
     dhcpd.close()
     iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fct des paramètres
@@ -186,7 +186,7 @@ if args.dhcp:
 
 if args.firewall:
     print('Firewall configuration ...\n')
-    # On met en DROP toutes les policy ipv4 et ipv6
+    # On met en DROP toutes les policy ipv4 et ipv6cd
     os.system('iptables -P INPUT DROP')
     os.system('iptables -P OUTPUT DROP')
     os.system('iptables -P FORWARD DROP')
@@ -240,7 +240,9 @@ if args.nat or args.firewall:
     print('Iptables-persistent setup...\n')
 
     def iptables_install():
-        """Setup iptable-persistent on linux distribution which have aperture"""
+        """Setup iptable-persistent with assume yes on linux distribution which have aperture"""
+        os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections')
+        os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections')
         os.system('apt-get install -qq -y iptables-persistent > /dev/null')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
