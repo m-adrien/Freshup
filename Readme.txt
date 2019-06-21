@@ -50,6 +50,8 @@ Autres Options :
 -F = Forcer l'installation sur une autre distribution que Debian
 ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDUS !
 
+-h = Help pour Obtenir de l'aide à propos des options.
+
 -r = Redémarrer le système à la fin du programme.
 
 *Ce script à été réalisé par Mr M Adrien dans le cadre d'un projet de formation Openclassrooms
@@ -94,10 +96,12 @@ To prevent some basics features from setup use these options :
 -t = tools : net-tools, dnsutils, tcpdump, SSH
 
 Other options :
--F : force the installation on other distrubutions
+-F = force the installation on other distrubutions
 BE CAREFUL THIS OPTION MAY HAVE UNEXPECTED EFFECT ON THE SYSTEME !
 
--r : reboot the system at the end of Freshup
+-r = reboot the system at the end of Freshup
+
+-h = Help : to get some help for these options
 
 THIS PROGRAM NEED ROOT'S RIGHTS TO WORKS
 
