@@ -241,8 +241,8 @@ if args.nat or args.firewall:
 
     def iptables_install():
         """Setup iptable-persistent with assume yes on linux distribution which have aperture"""
-        os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections')
-        os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections')
+        os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
+        os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
         os.system('apt-get install -qq -y iptables-persistent > /dev/null')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
