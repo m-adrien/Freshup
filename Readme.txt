@@ -1,12 +1,12 @@
-________________________________________________________________________________________________________________
-_______________________________________________FRESH UP_________________________________________________________
+_______________________________________________________________________________________________________________
+_______________________________________________FRESH UP________________________________________________________
 
-_______________________________________________FRANCAIS_________________________________________________________
+_______________________________________________FRANCAIS________________________________________________________
 Pour lancer ce programme vous devez :
 1) Avoir les droits root
-2) Avoir dans le même dossier freshup.py et conf.ini
+2) Avoir dans le même dossier freshup et conf.ini
 3) Vous placer dans ce dossier avec la commande "cd /chemin/vers/votre/fichier/"
-4) Executer la commande suivante : "python3 freshup.py" (sans les guillemets)
+4) Executer la commande suivante : "python3 freshup" (sans les guillemets)
 
 Le script Freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide avec
 les outils essentiels à l'administration réseau.
@@ -57,12 +57,12 @@ ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDUS !
 *Ce script à été réalisé par Mr M Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
 
-_______________________________________________ENGLISH________________________________________________________
+_______________________________________________ENGLISH_______________________________________________________
 To run this programm you need to :
 1)Get the root's rights
-2)Have in the same directory freshup.py and conf.ini
+2)Have in the same directory freshup and conf.ini
 3)Move into this directory with "cd /path/to/your/file/"
-4)Enter this command "python3 freshup.py" (without the "")
+4)Enter this command "python3 freshup" (without the "")
 
 This program will simply and quickly configure a freshly setup of DEBIAN with somes essentials sysadmin tools.
 By default the program will make :
