@@ -8,6 +8,7 @@ import os  # Importation commandes bash de l'os
 import configparser  # Importation de la configuration et le module argument
 import threading  # Importation du module pour faire du thread
 import sys  # Importation des commandes sys essentiels
+import subprocess  # Importation du module subprocess
 
 # Création des argument options :
 print("Initialisation...")
@@ -66,22 +67,23 @@ print('done.\n')
 # ---------------------------- Vérifions que nous sommes sur Debian ----------------------- #
 
 if args.force:
-    # Création -> variable verif -> présence du mot Debian dans la version de la distribution
     print('Verification...')
-    os.system('uname -a | grep Debian')
-    verif = os.system('echo $?')
-    # Si Verif = 1 = pas sur Debian = On arrête le programme
-    if verif == 1:
-        sys.stdout.write('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution')
-        sys.exit([0])
-    # ---Vérification OK + Conf Chargée --> C'est partit !--- #
+    # On lance un sousprocess via popen et on redirige stdout dans child pour avoir le exit statut
+    # Ici uname -a donne la version complète et grep chercher la présence du mot Débian
+    child = subprocess.Popen("uname -a | grep Debian", shell=True, stdout=subprocess.PIPE)
+    streamdata = child.communicate()[0]
+    rc = child.returncode
+    if child.returncode != 0:  # Si exit status de grep Debian n'est pas bon on quitte
+        print('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution\n')
+        sys.exit()
+    # Vérification OK --> C'est partit !
     print('done.\n')
 
 # ------------------------------------ Installation des outils ---------------------------- #
 
 if args.tools:
     print('Tools setup...\n')
-    # ------------------------------------------------------------------------------- #
+    # ------------------------------------------------------------------ #
 
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
@@ -94,7 +96,7 @@ if args.tools:
         thread.join()
     if __name__ == '__main__':
         main()
-    # ------------------------------------------------------------------------------- #
+    # ------------------------------------------------------------------ #
 
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
@@ -107,7 +109,7 @@ if args.tools:
         thread.join()
     if __name__ == '__main__':
         main()
-    # ------------------------------------------------------------------------------- #
+    # ------------------------------------------------------------------ #
 
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
@@ -120,7 +122,7 @@ if args.tools:
         thread.join()
     if __name__ == '__main__':
         main()
-    # ------------------------------------------------------------------------------- #
+    # ----------------------------------------------------------------- #
 
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
@@ -133,7 +135,7 @@ if args.tools:
         thread.join()
     if __name__ == '__main__':
         main()
-    # ------------------------------------------------------------------------------- #
+    # ----------------------------------------------------------------- #
     print('done.\n')
 
 # --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
@@ -165,7 +167,7 @@ if args.dhcp:
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                     .format(DHSUB3, DHNM3, ST3, END3, IP3))
     dhcpd.close()
-    iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fct des paramètres
+    iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
     if DHCP1 == '1' and DHCP2 == '0' and DHCP3 == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
     if DHCP1 == '0' and DHCP2 == '1' and DHCP3 == '0':
@@ -315,7 +317,7 @@ if args.restart:
 # Si on reboot (-r) alors on ne relance pas les services.
 if not args.restart:
     os.system('init 6')
-print('Thank you to make a fresh up of your server !\n')
+print('Thank you for using Fresh-up on your server !\nMerci d\'avoir utilisé Fresh-up sur votre serveur !\n')
 
 # ---------------------------------- |||||||||||||||||| ----------------------------------- #
 # ---------------------------------- |FIN DU PROGRAMME| ----------------------------------- #
