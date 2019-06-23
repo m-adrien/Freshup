@@ -10,59 +10,20 @@ import threading  # Importation du module pour faire du thread
 import sys  # Importation des commandes sys essentiels
 import subprocess  # Importation du module subprocess
 
-# Création des argument options :
-print("Initialisation...")
+# Création des argument :
 config = configparser.ConfigParser()
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dhcp", help="DHCP : will not ne installed", action="store_false")
 parser.add_argument("-f", "--firewall", help="FIREWALL : will not be installed", action="store_false")
 parser.add_argument("-i", "--interfaces", help="INTERFACES : will not be configured", action="store_false")
 parser.add_argument("-n", "--nat", help="NAT : will not be configured", action="store_false")
-parser.add_argument("-r", "--restart", help="Sytème will be reboot at the end of FRESHUP", action="store_false")
+parser.add_argument("-r", "--route", help="Forwarding will not be enable", action="store_false")
 parser.add_argument("-t", "--tools", help="Net-tools dnsUtils tcp-dump and SSH: will be not installed",
                     action="store_false")
+parser.add_argument("-R", "--restart", help="Sytème will be reboot at the end of FRESHUP", action="store_false")
 parser.add_argument("-F", "--force", help="Force the installation on other distribution BE CAREFUL",
                     action="store_false")
 args = parser.parse_args()
-
-# On récupère nos variables du fichier .ini
-config.read('conf.ini')
-IP1 = config.get('INTERFACES', 'IP1')
-IP2 = config.get('INTERFACES', 'IP2')
-IP3 = config.get('INTERFACES', 'IP3')
-NM1 = config.get('INTERFACES', 'NM1')
-NM2 = config.get('INTERFACES', 'NM2')
-NM3 = config.get('INTERFACES', 'NM3')
-GW1 = config.get('INTERFACES', 'GW1')
-GW2 = config.get('INTERFACES', 'GW2')
-GW3 = config.get('INTERFACES', 'GW3')
-NAT1 = config.get('NAT', 'NAT1')
-NAT2 = config.get('NAT', 'NAT2')
-NAT3 = config.get('NAT', 'NAT3')
-FWE = config.get('FIREWALL', 'FWE')
-FWP = config.get('FIREWALL', 'FWP')
-FWD = config.get('FIREWALL', 'FWD')
-FWH = config.get('FIREWALL', 'FWH')
-FWS = config.get('FIREWALL', 'FWS')
-DHCP1 = config.get('DHCP', 'DHCP1')
-DHCP2 = config.get('DHCP', 'DHCP2')
-DHCP3 = config.get('DHCP', 'DHCP3')
-DHSUB1 = config.get('DHCP', 'SUBNET1')
-DHSUB2 = config.get('DHCP', 'SUBNET2')
-DHSUB3 = config.get('DHCP', 'SUBNET3')
-DHNM1 = config.get('DHCP', 'NETMASK1')
-DHNM2 = config.get('DHCP', 'NETMASK2')
-DHNM3 = config.get('DHCP', 'NETMASK3')
-ST1 = config.get('DHCP', 'START1')
-ST2 = config.get('DHCP', 'START2')
-ST3 = config.get('DHCP', 'START3')
-END1 = config.get('DHCP', 'END1')
-END2 = config.get('DHCP', 'END2')
-END3 = config.get('DHCP', 'END3')
-DGATE1 = config.get('DHCP', 'DGATE1')
-DGATE2 = config.get('DHCP', 'DGATE2')
-DGATE3 = config.get('DHCP', 'DGATE3')
-print('done.\n')
 
 # ---------------------------- Vérifions que nous sommes sur Debian ----------------------- #
 
@@ -157,30 +118,35 @@ if args.dhcp:
     # Configuration de dhcpd.conf
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
-    if DHCP1 == '1':
+    if config['DHCP-1']['DHCP'] == '1':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                    .format(DHSUB1, DHNM1, ST1, END1, IP1))
-    if DHCP2 == '1':
+                   .format(config['DHCP-1']['SUBNET'], config['DHCP-1']['NETMASK'], config['DHCP-1']['START'],
+                   config['DHCP-1']['END'], config['DHCP-1']['DGATE']))
+
+    if config['DHCP-2']['DHCP'] == '1':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                    .format(DHSUB2, DHNM2, ST2, END2, IP2))
-    if DHCP3 == '1':
+                   .format(config['DHCP-2']['SUBNET'], config['DHCP-2']['NETMASK'], config['DHCP-2']['START'],
+                   config['DHCP-2']['END'], config['DHCP-2']['DGATE']))
+    if config['DHCP']['DHCP3'] == '1':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                    .format(DHSUB3, DHNM3, ST3, END3, IP3))
+                   .format(config['DHCP-3']['SUBNET'], config['DHCP-3']['NETMASK'], config['DHCP-3']['START'],
+                   config['DHCP-3']['END'], config['DHCP-3']['DGATE']))
     dhcpd.close()
+    # Configuration de default/isc-dhcp-server
     iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
-    if DHCP1 == '1' and DHCP2 == '0' and DHCP3 == '0':
+    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '0' and config['DHCP-3']['DHCP'] == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
-    if DHCP1 == '0' and DHCP2 == '1' and DHCP3 == '0':
+    if config['DHCP-1']['DHCP'] == '0' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '0':
         iscdhcpd.write('INTERFACESv4="enp0s8"\nINTERFACESv6=""\n')
-    if DHCP1 == '0' and DHCP2 == '0' and DHCP3 == '1':
+    if config['DHCP-1']['DHCP'] == '0' and config['DHCP-2']['DHCP'] == '0' and config['DHCP-3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == '1' and DHCP2 == '1' and DHCP3 == '0':
+    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8"\nINTERFACESv6=""\n')
-    if DHCP1 == '1' and DHCP2 == '0' and DHCP3 == '1':
+    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '0' and config['DHCP-3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == '0' and DHCP2 == '1' and DHCP3 == '1':
+    if config['DHCP-1']['DHCP'] == '0' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s8 enp0s9"\nINTERFACESv6=""\n')
-    if DHCP1 == '1' and DHCP2 == '1' and DHCP3 == '1':
+    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
 
@@ -195,32 +161,85 @@ if args.firewall:
     os.system('ip6tables -P INPUT DROP')
     os.system('ip6tables -P OUTPUT DROP')
     os.system('ip6tables -P FORWARD DROP')
-    # On autorise en IPv4
-    if FWE == '1':
-        # Connections déjà établies
-        os.system('iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        os.system('iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        os.system('iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-    if FWP == '1':
-        # Ping : icmp
-        os.system('iptables -A INPUT -p icmp -j ACCEPT')
-        os.system('iptables -A OUTPUT -p icmp -j ACCEPT')
-        os.system('iptables -A FORWARD -p icmp -j ACCEPT')
-    if FWD == '1':
-        # DNS : udp 53
-        os.system('iptables -A INPUT -p udp --dport 53 -j ACCEPT')
-        os.system('iptables -A OUTPUT -p udp --dport 53 -j ACCEPT')
-        os.system('iptables -A FORWARD -p udp --dport 53 -j ACCEPT')
-    if FWH == '1':
-        # HTTP : tcp 80
-        os.system('iptables -A INPUT -p tcp --dport 80 -j ACCEPT')
-        os.system('iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT')
-        os.system('iptables -A FORWARD -p tcp --dport 80 -j ACCEPT')
-    if FWS == '1':
-        # HTTPS : tcp 443
-        os.system('iptables -A INPUT -p tcp --dport 443 -j ACCEPT')
-        os.system('iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT')
-        os.system('iptables -A FORWARD -p tcp --dport 443 -j ACCEPT')
+    # On autorise en IPv4 les ports selon la config :
+    if config['FIREWALL-1']['FW'] == '1':
+        if config['FIREWALL-1']['EST'] == '1':
+            # Connections déjà établies
+            os.system('iptables -A INPUT -i enp0s3 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s3  -o enp0s3 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+        if config['FIREWALL-1']['PING'] == '1':
+            # Ping : icmp
+            os.system('iptables -A INPUT -i enp0s3 -p icmp -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s3 -p icmp -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p icmp -j ACCEPT')
+        if config['FIREWALL-1']['DNS'] == '1':
+            # DNS : udp 53
+            os.system('iptables -A INPUT -i enp0s3 -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s3 -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p udp --dport 53 -j ACCEPT')
+        if config['FIREWALL-1']['HTTP'] == '1':
+            # HTTP : tcp 80
+            os.system('iptables -A INPUT -i enp0s3 -p tcp --dport 80 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s3 -p tcp --dport 80 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p tcp --dport 80 -j ACCEPT')
+        if config['FIREWALL-1']['HTTPS'] == '1':
+            # HTTPS : tcp 443
+            os.system('iptables -A INPUT -i enp0s3 -p tcp --dport 443 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s3 -p tcp --dport 443 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p tcp --dport 443 -j ACCEPT')
+    if config['FIREWALL-2']['FW'] == '1':
+        if config['FIREWALL-2']['EST'] == '1':
+            # Connections déjà établies
+            os.system('iptables -A INPUT -i enp0s8 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s8 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+        if config['FIREWALL-2']['PING'] == '1':
+            # Ping : icmp
+            os.system('iptables -A INPUT -i enp0s8 -p icmp -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s8 -p icmp -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p icmp -j ACCEPT')
+        if config['FIREWALL-2']['DNS'] == '1':
+            # DNS : udp 53
+            os.system('iptables -A INPUT -i enp0s8 -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s8 -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p udp --dport 53 -j ACCEPT')
+        if config['FIREWALL-2']['HTTP'] == '1':
+            # HTTP : tcp 80
+            os.system('iptables -A INPUT -i enp0s8 -p tcp --dport 80 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s8 -p tcp --dport 80 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p tcp --dport 80 -j ACCEPT')
+        if config['FIREWALL-2']['HTTPS'] == '1':
+            # HTTPS : tcp 443
+            os.system('iptables -A INPUT -i enp0s8 -p tcp --dport 443 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s8 -p tcp --dport 443 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p tcp --dport 443 -j ACCEPT')
+    if config['FIREWALL-3']['FW'] == '1':
+        if config['FIREWALL-3']['EST'] == '1':
+            # Connections déjà établies
+            os.system('iptables -A INPUT -i enp0s9 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s9 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+        if config['FIREWALL-3']['PING'] == '1':
+            # Ping : icmp
+            os.system('iptables -A INPUT -i enp0s9 -p icmp -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s9 -p icmp -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p icmp -j ACCEPT')
+        if config['FIREWALL-3']['DNS'] == '1':
+            # DNS : udp 53
+            os.system('iptables -A INPUT -i enp0s9 -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s9 -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p udp --dport 53 -j ACCEPT')
+        if config['FIREWALL-3']['HTTP'] == '1':
+            # HTTP : tcp 80
+            os.system('iptables -A INPUT -i enp0s9 -p tcp --dport 80 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s9 -p tcp --dport 80 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p tcp --dport 80 -j ACCEPT')
+        if config['FIREWALL-3']['HTTPS'] == '1':
+            # HTTPS : tcp 443
+            os.system('iptables -A INPUT -i enp0s9 -p tcp --dport 443 -j ACCEPT')
+            os.system('iptables -A OUTPUT -o enp0s9 -p tcp --dport 443 -j ACCEPT')
+            os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p tcp --dport 443 -j ACCEPT')
     # FIN DE LA CONFIG PARE-FEU
     print('done.\n')
 
@@ -228,11 +247,11 @@ if args.firewall:
 
 if args.nat:
     print('NAT configuration...\n')
-    if NAT1 == '1':
+    if config['NAT']['NAT1'] == '1':
         os.system('iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE')
-    if NAT2 == '1':
+    if config['NAT']['NAT2'] == '1':
         os.system('iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE')
-    if NAT3 == '1':
+    if config['NAT']['NAT3'] == '1':
         os.system('iptables -t nat -A POSTROUTING -o enp0s9 -j MASQUERADE')
     print('done.\n')
 
@@ -257,11 +276,16 @@ if args.nat or args.firewall:
 
 # ----------------------------------- Activation du routage ------------------------------- #
 
-sysctl = open("/etc/sysctl.conf", "a")
-sysctl.write('\nnet.ipv4.ip_forward=1\n')
-sysctl.close()
-os.system('sysctl -p /etc/sysctl.conf')
-print("Forwarding enable")
+if args.route:
+    child = subprocess.Popen("sysctl -p /etc/sysctl.conf", shell=True, stdout=subprocess.PIPE)
+    streamdata = child.communicate()[0]
+    rc = child.returncode
+    if child.returncode != 0:  # Si exit status de grep Debian n'est pas bon on quitte
+        sysctl = open("/etc/sysctl.conf", "a")
+        sysctl.write('\nnet.ipv4.ip_forward=1\n')
+        sysctl.close()
+        os.system('sysctl -p /etc/sysctl.conf')
+    print("Forwarding enable")
 
 # --------------------------------- Configuration des interfaces -------------------------- #
 
@@ -273,13 +297,13 @@ if args.interfaces:
     interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
     # Insertion de la conf de l'iface 1
     interfaces.write("#Iface 1\nauto enp0s3\niface enp0s3 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                     .format(IP1, NM1, GW1))
+                     .format(config['INTERFACES']['IP1'], config['INTERFACES']['NM1'], config['INTERFACES']['GW1']))
     # Insertion de la conf de l'iface 2
     interfaces.write("#Iface 2\nauto enp0s8\niface enp0s8 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                     .format(IP2, NM2, GW2))
+                     .format(config['INTERFACES']['IP2'], config['INTERFACES']['NM2'], config['INTERFACES']['GW2']))
     # Insertion de la conf de l'iface 3
     interfaces.write("#Iface 3\nauto enp0s9\niface enp0s9 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                     .format(IP3, NM3, GW3))
+                     .format(config['INTERFACES']['IP3'], config['INTERFACES']['NM3'], config['INTERFACES']['GW3']))
     # Fermeture du fichier
     interfaces.close()
     # --- Configuration interface terminée --- #

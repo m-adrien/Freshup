@@ -41,6 +41,8 @@ Utilisez les options suivantes afin d’empêcher l'installation des fonctionali
 
 -n = NAT
 
+-r = routage
+
 -t = tools : net-tools, dnsutils, tcpdump, SSH
 
 	Si -f et -n sont activées de concert iptables persistent ne sera
@@ -50,9 +52,10 @@ Autres Options :
 -F = Forcer l'installation sur une autre distribution que Debian
 ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDUS !
 
+-R = Redémarrer le système à la fin du programme.
+
 -h = Help pour Obtenir de l'aide à propos des options.
 
--r = Redémarrer le système à la fin du programme.
 
 *Ce script à été réalisé par Mr M Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
@@ -93,13 +96,15 @@ To prevent some basics features from setup use these options :
 
 -n = NAT
 
+-r = route : forwarding will not be enable
+
 -t = tools : net-tools, dnsutils, tcpdump, SSH
 
 Other options :
 -F = force the installation on other distrubutions
 BE CAREFUL THIS OPTION MAY HAVE UNEXPECTED EFFECT ON THE SYSTEME !
 
--r = reboot the system at the end of Freshup
+-R = reboot the system at the end of Freshup
 
 -h = Help : to get some help for these options
 
