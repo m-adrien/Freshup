@@ -43,6 +43,7 @@ if args.force:
     print('done.\n')
     # Vérification connection internet
     child = subprocess.Popen("ping 8.8.8.8 -c 4", shell=True, stdout=subprocess.PIPE)
+    streamdata = child.communicate()[0]
     ping = child.returncode
     if ping == 0:
         child = subprocess.Popen("ping google.com -c 4", shell=True, stdout=subprocess.PIPE)
@@ -53,8 +54,10 @@ if args.force:
         else:
             print('Ping is ok... but it seem to have other troubles (could be a DNS resolving)'
                   '\nPlease check your connection')
+            sys.exit()
     else:
-        print('Ther is some troubles... can\'t ping 8.8.8.8\n Please check your connection')
+        print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection')
+        sys.exit()
 
 # ------------------------------------ Installation des outils ---------------------------- #
 
