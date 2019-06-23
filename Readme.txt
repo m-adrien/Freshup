@@ -52,6 +52,10 @@ LOG :
 Un fichier freshup.log sera créer dans le répertoire actuel vous trouverez à l'interieur l'ensemble
 des logs d'installation des différents composants.
 
+EXIT STATUS :
+0 : Le programme c'est terminé correctement
+1 : Problème de detection de distribution (Etes-vous sur Debian?)
+2 : Problème de connectivité internet
 
 *Ce script à été réalisé par Mr M Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
@@ -104,6 +108,10 @@ LOG:
 A freshup.log file will be created in the current directory you will find inside the
 installation logs of the different components.
 
+EXIT STATUS :
+0 : Programme was correctly finished
+1 : Distribution reading got a probleme (Are you on Debian?)
+2 : Problème de connectivité internet
 
 *This script was created by Mr. M Adrien for an Openclassrooms training project
 *This program is freely accessible and modified under GNU license

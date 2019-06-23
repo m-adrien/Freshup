@@ -26,8 +26,8 @@ parser.add_argument("-F", "--force", help="Force the installation on other distr
 args = parser.parse_args()
 
 # Création d'un fichier de log
-os.system('touch ./freshup.log')
-
+freshlog = open('freshup.log', 'w')
+sys.stderr = freshlog
 # ------------------------------------------ Vérifiations  -------------------------------- #
 
 if args.force:
@@ -39,7 +39,7 @@ if args.force:
     streamdata = child.communicate()[0]
     if child.returncode != 0:  # Si exit status de grep Debian n'est pas bon on quitte
         print('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution\n')
-        sys.exit()
+        sys.exit(1)
     print('done.\n')
     # Vérification connection internet
     child = subprocess.Popen("ping 8.8.8.8 -c 4", shell=True, stdout=subprocess.PIPE)
@@ -54,21 +54,26 @@ if args.force:
         else:
             print('Ping is ok... but it seem to have other troubles (could be a DNS resolving)'
                   '\nPlease check your connection')
-            sys.exit()
+            sys.stdout = sys.__stdout__
+            print('Ping is ok... but it seem to have other troubles (could be a DNS resolving)'
+                  '\nPlease check your connection')
+            sys.exit(2)
     else:
         print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection')
-        sys.exit()
+        sys.stdout = sys.__stdout__
+        print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection')
+        sys.exit(2)
 
 # ------------------------------------ Installation des outils ---------------------------- #
 
 if args.tools:
     print('Tools setup...\n')
     # ------------------------------------------------------------------ #
-
+    sys.stdout = freshlog
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
-        os.system('apt-get install -y openssh-server > ./freshup.log 2&1')
-        print('Ssh setup...')
+        print('Ssh setup.\n')
+        os.system('apt-get install -y openssh-server')
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=ssh_install)
@@ -80,8 +85,8 @@ if args.tools:
 
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
-        os.system('apt-get install -y net-tools  > ./freshup.log 2&1')
-        print('Net-tools setup...')
+        os.system('apt-get install -y net-tools')
+        print('Net-tools setup.\n')
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=nettools_install)
@@ -93,7 +98,7 @@ if args.tools:
 
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
-        os.system('apt-get install -y dnsutils > ./freshup.log 2&1')
+        os.system('apt-get install -y dnsutils')
         print('Dns-utils setup...')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -106,7 +111,7 @@ if args.tools:
 
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
-        os.system('apt-get install -y tcpdump > ./freshup.log 2&1')
+        os.system('apt-get install -y tcpdump')
         print('TcpDump setup...')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -125,7 +130,7 @@ if args.dhcp:
 
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
-        os.system('apt-get install -y isc-dhcp-server > ./freshup.log 2&1')
+        os.system('apt-get install -y isc-dhcp-server')
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dhcp_install)
@@ -289,7 +294,7 @@ if args.nat or args.firewall:
         """Setup iptable-persistent with assume yes on linux distribution which have aperture"""
         os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
         os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-        os.system('apt-get install -y iptables-persistent > ./freshup.log 2&1')
+        os.system('apt-get install -y iptables-persistent')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=iptables_install)
@@ -365,8 +370,11 @@ if args.restart:
     # ----------------------------------------------------------------------- #
 # Si on reboot (-r) alors on ne relance pas les services.
 if not args.restart:
+    freshlog.close()
     os.system('init 6')
 print('Thank you for using Fresh-up on your server !\nMerci d\'avoir utilisé Fresh-up sur votre serveur !\n')
+freshlog.close()
+sys.exit(0)
 
 # ---------------------------------- |||||||||||||||||| ----------------------------------- #
 # ---------------------------------- |FIN DU PROGRAMME| ----------------------------------- #
