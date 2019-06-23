@@ -25,20 +25,36 @@ parser.add_argument("-F", "--force", help="Force the installation on other distr
                     action="store_false")
 args = parser.parse_args()
 
-# ---------------------------- Vérifions que nous sommes sur Debian ----------------------- #
+# Création d'un fichier de log
+os.system('touch ./freshup.log')
+
+# ------------------------------------------ Vérifiations  -------------------------------- #
 
 if args.force:
     print('Verification...')
-    # On lance un sousprocess via popen et on redirige stdout dans child pour avoir le exit statut
-    # Ici uname -a donne la version complète et grep chercher la présence du mot Débian
+    # Vérification de la distribution
+    """On lance un sousprocess via popen et on redirige stdout dans child pour avoir le exit statut
+       Ici uname -a donne la version complète et grep chercher la présence du mot Débian"""
     child = subprocess.Popen("uname -a | grep Debian", shell=True, stdout=subprocess.PIPE)
     streamdata = child.communicate()[0]
-    rc = child.returncode
     if child.returncode != 0:  # Si exit status de grep Debian n'est pas bon on quitte
         print('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution\n')
         sys.exit()
-    # Vérification OK --> C'est partit !
     print('done.\n')
+    # Vérification connection internet
+    child = subprocess.Popen("ping 8.8.8.8 -c 4", shell=True, stdout=subprocess.PIPE)
+    ping = child.returncode
+    if ping == 0:
+        child = subprocess.Popen("ping google.com -c 4", shell=True, stdout=subprocess.PIPE)
+        streamdata = child.communicate()[0]
+        dns = child.returncode
+        if dns == 0:
+            print('Connection is ok')
+        else:
+            print('Ping is ok... but it seem to have other troubles (could be a DNS resolving)'
+                  '\nPlease check your connection')
+    else:
+        print('Ther is some troubles... can\'t ping 8.8.8.8\n Please check your connection')
 
 # ------------------------------------ Installation des outils ---------------------------- #
 
@@ -48,7 +64,7 @@ if args.tools:
 
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
-        os.system('apt-get install -y openssh-server > /dev/null')
+        os.system('apt-get install -y openssh-server > ./freshup.log 2&1')
         print('Ssh setup...')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -61,7 +77,7 @@ if args.tools:
 
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
-        os.system('apt-get install -qq -y net-tools > /dev/null')
+        os.system('apt-get install -y net-tools  > ./freshup.log 2&1')
         print('Net-tools setup...')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -74,7 +90,7 @@ if args.tools:
 
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
-        os.system('apt-get install -qq -y dnsutils > /dev/null')
+        os.system('apt-get install -y dnsutils > ./freshup.log 2&1')
         print('Dns-utils setup...')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -87,7 +103,7 @@ if args.tools:
 
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
-        os.system('apt-get install -qq -y tcpdump > /dev/null')
+        os.system('apt-get install -y tcpdump > ./freshup.log 2&1')
         print('TcpDump setup...')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -106,7 +122,7 @@ if args.dhcp:
 
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
-        os.system('apt-get install -qq -y isc-dhcp-server > /dev/null')
+        os.system('apt-get install -y isc-dhcp-server > ./freshup.log 2&1')
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dhcp_install)
@@ -162,6 +178,7 @@ if args.firewall:
     os.system('ip6tables -P OUTPUT DROP')
     os.system('ip6tables -P FORWARD DROP')
     # On autorise en IPv4 les ports selon la config :
+    # ----------------------------------------------------------------- #
     if config['FIREWALL-1']['FW'] == '1':
         if config['FIREWALL-1']['EST'] == '1':
             # Connections déjà établies
@@ -188,6 +205,8 @@ if args.firewall:
             os.system('iptables -A INPUT -i enp0s3 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s3 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p tcp --dport 443 -j ACCEPT')
+    # ----------------------------------------------------------------- #
+    # ----------------------------------------------------------------- #
     if config['FIREWALL-2']['FW'] == '1':
         if config['FIREWALL-2']['EST'] == '1':
             # Connections déjà établies
@@ -214,6 +233,8 @@ if args.firewall:
             os.system('iptables -A INPUT -i enp0s8 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s8 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p tcp --dport 443 -j ACCEPT')
+    # ----------------------------------------------------------------- #
+    # ----------------------------------------------------------------- #
     if config['FIREWALL-3']['FW'] == '1':
         if config['FIREWALL-3']['EST'] == '1':
             # Connections déjà établies
@@ -240,6 +261,7 @@ if args.firewall:
             os.system('iptables -A INPUT -i enp0s9 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s9 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p tcp --dport 443 -j ACCEPT')
+    # ----------------------------------------------------------------- #
     # FIN DE LA CONFIG PARE-FEU
     print('done.\n')
 
@@ -264,7 +286,7 @@ if args.nat or args.firewall:
         """Setup iptable-persistent with assume yes on linux distribution which have aperture"""
         os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
         os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-        os.system('apt-get install -qq -y iptables-persistent > /dev/null')
+        os.system('apt-get install -y iptables-persistent > ./freshup.log 2&1')
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=iptables_install)
