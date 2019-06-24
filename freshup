@@ -54,13 +54,11 @@ if args.force:
         else:
             print('Ping is ok... but it seem to have other troubles (could be a DNS resolving)'
                   '\nPlease check your connection')
-            sys.stdout = sys.__stdout__
             print('Ping is ok... but it seem to have other troubles (could be a DNS resolving)'
                   '\nPlease check your connection')
             sys.exit(2)
     else:
         print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection')
-        sys.stdout = sys.__stdout__
         print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection')
         sys.exit(2)
 
@@ -69,10 +67,10 @@ if args.force:
 if args.tools:
     print('Tools setup...\n')
     # ------------------------------------------------------------------ #
-    sys.stdout = freshlog
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
         print('Ssh setup.\n')
+        sys.stdout = freshlog
         os.system('apt-get install -y openssh-server')
 
     def main():  # Mise en thread et attente du thread dans def main
@@ -85,8 +83,11 @@ if args.tools:
 
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
-        os.system('apt-get install -y net-tools')
+        sys.stdout = sys.__stdout__
         print('Net-tools setup.\n')
+        sys.stdout = freshlog
+        os.system('apt-get install -y net-tools')
+        freshlog.close()
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=nettools_install)
@@ -98,8 +99,11 @@ if args.tools:
 
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
+        sys.stdout = sys.__stdout__
+        print('dnsutils setup.\n')
+        sys.stdout = freshlog
         os.system('apt-get install -y dnsutils')
-        print('Dns-utils setup...')
+        freshlog.close()
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dnsutils_install)
@@ -111,8 +115,11 @@ if args.tools:
 
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
+        sys.stdout = sys.__stdout__
+        print('Tcpdump setup.\n')
+        sys.stdout = freshlog
         os.system('apt-get install -y tcpdump')
-        print('TcpDump setup...')
+        freshlog.close()
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=tcpdump_install)
@@ -126,11 +133,13 @@ if args.tools:
 # --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
 
 if args.dhcp:
-    print('DHCP-server setup...\n')
-
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
+        sys.stdout = sys.__stdout__
+        print('Isc-dhcp-server setup.\n')
+        sys.stdout = freshlog
         os.system('apt-get install -y isc-dhcp-server')
+        freshlog.close()
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dhcp_install)
@@ -140,6 +149,7 @@ if args.dhcp:
         main()
 
     # Configuration de dhcpd.conf
+    sys.stdout = freshlog
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
     if config['DHCP-1']['DHCP'] == '1':
@@ -177,7 +187,9 @@ if args.dhcp:
 # ------------------------------------ Configuration FIREWALL ----------------------------- #
 
 if args.firewall:
+    sys.stdout = sys.__stdout__
     print('Firewall configuration ...\n')
+    sys.stdout = freshlog
     # On met en DROP toutes les policy ipv4 et ipv6cd
     os.system('iptables -P INPUT DROP')
     os.system('iptables -P OUTPUT DROP')
@@ -315,12 +327,15 @@ if args.route:
         sysctl.write('\nnet.ipv4.ip_forward=1\n')
         sysctl.close()
         os.system('sysctl -p /etc/sysctl.conf')
+    sys.stdout = sys.__stdout__
     print("Forwarding enable")
 
 # --------------------------------- Configuration des interfaces -------------------------- #
 
 if args.interfaces:
+    sys.stdout = sys.__stdout__
     print('Interfaces configuration...')
+    sys.stdout = freshlog
     # Ouverture et ecriture (erase) du fichier de conf
     interfaces = open("/etc/network/interfaces", "w")
     # Insertion de la conf de base
@@ -347,6 +362,7 @@ if args.restart:
     if args.interfaces:
         def network_restart():
             """Restart the network interfaces on Debian"""
+            sys.stdout = freshlog
             os.system('/etc/init.d/networking restart')
 
         def main():  # Attente fin restart mis en thread par la fonction main
@@ -359,6 +375,7 @@ if args.restart:
     if args.dhcp:
         def dhcp_restart():
             """Restart the isc-dhcp-serveur"""
+            sys.stdout = freshlog
             os.system('/etc/init.d/isc-dhcp-server restart')
 
         def main():  # Attente de la fin du restart mis en thread par la fonction main
