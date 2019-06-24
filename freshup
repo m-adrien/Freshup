@@ -152,35 +152,35 @@ if args.dhcp:
     sys.stdout = freshlog
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
-    if config['DHCP-1']['DHCP'] == '1':
+    if config['DHCP1']['DHCP'] == '1':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                   .format(config['DHCP-1']['SUBNET'], config['DHCP-1']['NETMASK'], config['DHCP-1']['START'],
-                   config['DHCP-1']['END'], config['DHCP-1']['DGATE']))
+                   .format(config['DHCP1']['SUBNET'], config['DHCP1']['NETMASK'], config['DHCP1']['START'],
+                   config['DHCP1']['END'], config['DHCP1']['DGATE']))
 
-    if config['DHCP-2']['DHCP'] == '1':
+    if config['DHCP2']['DHCP'] == '1':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                   .format(config['DHCP-2']['SUBNET'], config['DHCP-2']['NETMASK'], config['DHCP-2']['START'],
-                   config['DHCP-2']['END'], config['DHCP-2']['DGATE']))
+                   .format(config['DHCP2']['SUBNET'], config['DHCP2']['NETMASK'], config['DHCP2']['START'],
+                   config['DHCP2']['END'], config['DHCP2']['DGATE']))
     if config['DHCP']['DHCP3'] == '1':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                   .format(config['DHCP-3']['SUBNET'], config['DHCP-3']['NETMASK'], config['DHCP-3']['START'],
-                   config['DHCP-3']['END'], config['DHCP-3']['DGATE']))
+                   .format(config['DHCP3']['SUBNET'], config['DHCP3']['NETMASK'], config['DHCP3']['START'],
+                   config['DHCP3']['END'], config['DHCP3']['DGATE']))
     dhcpd.close()
     # Configuration de default/isc-dhcp-server
     iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
-    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '0' and config['DHCP-3']['DHCP'] == '0':
+    if config['DHCP1']['DHCP'] == '1' and config['DHCP2']['DHCP'] == '0' and config['DHCP3']['DHCP'] == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3"\nINTERFACESv6=""\n')
-    if config['DHCP-1']['DHCP'] == '0' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '0':
+    if config['DHCP1']['DHCP'] == '0' and config['DHCP2']['DHCP'] == '1' and config['DHCP3']['DHCP'] == '0':
         iscdhcpd.write('INTERFACESv4="enp0s8"\nINTERFACESv6=""\n')
-    if config['DHCP-1']['DHCP'] == '0' and config['DHCP-2']['DHCP'] == '0' and config['DHCP-3']['DHCP'] == '1':
+    if config['DHCP1']['DHCP'] == '0' and config['DHCP2']['DHCP'] == '0' and config['DHCP3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s9"\nINTERFACESv6=""\n')
-    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '0':
+    if config['DHCP1']['DHCP'] == '1' and config['DHCP2']['DHCP'] == '1' and config['DHCP3']['DHCP'] == '0':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8"\nINTERFACESv6=""\n')
-    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '0' and config['DHCP-3']['DHCP'] == '1':
+    if config['DHCP1']['DHCP'] == '1' and config['DHCP2']['DHCP'] == '0' and config['DHCP3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s9"\nINTERFACESv6=""\n')
-    if config['DHCP-1']['DHCP'] == '0' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '1':
+    if config['DHCP1']['DHCP'] == '0' and config['DHCP2']['DHCP'] == '1' and config['DHCP3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s8 enp0s9"\nINTERFACESv6=""\n')
-    if config['DHCP-1']['DHCP'] == '1' and config['DHCP-2']['DHCP'] == '1' and config['DHCP-3']['DHCP'] == '1':
+    if config['DHCP1']['DHCP'] == '1' and config['DHCP2']['DHCP'] == '1' and config['DHCP3']['DHCP'] == '1':
         iscdhcpd.write('INTERFACESv4="enp0s3 enp0s8 enp0s9"\nINTERFACESv6=""\n')
     print('done.\n')
 
@@ -199,84 +199,84 @@ if args.firewall:
     os.system('ip6tables -P FORWARD DROP')
     # On autorise en IPv4 les ports selon la config :
     # ----------------------------------------------------------------- #
-    if config['FIREWALL-1']['FW'] == '1':
-        if config['FIREWALL-1']['EST'] == '1':
+    if config['FIREWALL1']['FW'] == '1':
+        if config['FIREWALL1']['EST'] == '1':
             # Connections déjà établies
             os.system('iptables -A INPUT -i enp0s3 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
             os.system('iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s3  -o enp0s3 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        if config['FIREWALL-1']['PING'] == '1':
+        if config['FIREWALL1']['PING'] == '1':
             # Ping : icmp
             os.system('iptables -A INPUT -i enp0s3 -p icmp -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s3 -p icmp -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p icmp -j ACCEPT')
-        if config['FIREWALL-1']['DNS'] == '1':
+        if config['FIREWALL1']['DNS'] == '1':
             # DNS : udp 53
             os.system('iptables -A INPUT -i enp0s3 -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s3 -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p udp --dport 53 -j ACCEPT')
-        if config['FIREWALL-1']['HTTP'] == '1':
+        if config['FIREWALL1']['HTTP'] == '1':
             # HTTP : tcp 80
             os.system('iptables -A INPUT -i enp0s3 -p tcp --dport 80 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s3 -p tcp --dport 80 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p tcp --dport 80 -j ACCEPT')
-        if config['FIREWALL-1']['HTTPS'] == '1':
+        if config['FIREWALL1']['HTTPS'] == '1':
             # HTTPS : tcp 443
             os.system('iptables -A INPUT -i enp0s3 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s3 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s3 -o enp0s3 -p tcp --dport 443 -j ACCEPT')
     # ----------------------------------------------------------------- #
     # ----------------------------------------------------------------- #
-    if config['FIREWALL-2']['FW'] == '1':
-        if config['FIREWALL-2']['EST'] == '1':
+    if config['FIREWALL2']['FW'] == '1':
+        if config['FIREWALL2']['EST'] == '1':
             # Connections déjà établies
             os.system('iptables -A INPUT -i enp0s8 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s8 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        if config['FIREWALL-2']['PING'] == '1':
+        if config['FIREWALL2']['PING'] == '1':
             # Ping : icmp
             os.system('iptables -A INPUT -i enp0s8 -p icmp -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s8 -p icmp -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p icmp -j ACCEPT')
-        if config['FIREWALL-2']['DNS'] == '1':
+        if config['FIREWALL2']['DNS'] == '1':
             # DNS : udp 53
             os.system('iptables -A INPUT -i enp0s8 -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s8 -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p udp --dport 53 -j ACCEPT')
-        if config['FIREWALL-2']['HTTP'] == '1':
+        if config['FIREWALL2']['HTTP'] == '1':
             # HTTP : tcp 80
             os.system('iptables -A INPUT -i enp0s8 -p tcp --dport 80 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s8 -p tcp --dport 80 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p tcp --dport 80 -j ACCEPT')
-        if config['FIREWALL-2']['HTTPS'] == '1':
+        if config['FIREWALL2']['HTTPS'] == '1':
             # HTTPS : tcp 443
             os.system('iptables -A INPUT -i enp0s8 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s8 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s8 -o enp0s8 -p tcp --dport 443 -j ACCEPT')
     # ----------------------------------------------------------------- #
     # ----------------------------------------------------------------- #
-    if config['FIREWALL-3']['FW'] == '1':
-        if config['FIREWALL-3']['EST'] == '1':
+    if config['FIREWALL3']['FW'] == '1':
+        if config['FIREWALL3']['EST'] == '1':
             # Connections déjà établies
             os.system('iptables -A INPUT -i enp0s9 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s9 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        if config['FIREWALL-3']['PING'] == '1':
+        if config['FIREWALL3']['PING'] == '1':
             # Ping : icmp
             os.system('iptables -A INPUT -i enp0s9 -p icmp -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s9 -p icmp -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p icmp -j ACCEPT')
-        if config['FIREWALL-3']['DNS'] == '1':
+        if config['FIREWALL3']['DNS'] == '1':
             # DNS : udp 53
             os.system('iptables -A INPUT -i enp0s9 -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s9 -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p udp --dport 53 -j ACCEPT')
-        if config['FIREWALL-3']['HTTP'] == '1':
+        if config['FIREWALL3']['HTTP'] == '1':
             # HTTP : tcp 80
             os.system('iptables -A INPUT -i enp0s9 -p tcp --dport 80 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s9 -p tcp --dport 80 -j ACCEPT')
             os.system('iptables -A FORWARD -i enp0s9 -o enp0s9 -p tcp --dport 80 -j ACCEPT')
-        if config['FIREWALL-3']['HTTPS'] == '1':
+        if config['FIREWALL3']['HTTPS'] == '1':
             # HTTPS : tcp 443
             os.system('iptables -A INPUT -i enp0s9 -p tcp --dport 443 -j ACCEPT')
             os.system('iptables -A OUTPUT -o enp0s9 -p tcp --dport 443 -j ACCEPT')
