@@ -26,8 +26,7 @@ parser.add_argument("-F", "--force", help="Force the installation on other distr
 args = parser.parse_args()
 
 # Création d'un fichier de log
-freshlog = open('freshup.log', 'w')
-sys.stderr = freshlog
+
 # ------------------------------------------ Vérifiations  -------------------------------- #
 
 if args.force:
@@ -70,8 +69,9 @@ if args.tools:
     def ssh_install():
         """Setup openssh-server on linux distribution which have aperture"""
         print('Ssh setup.\n')
-        freshlog.write('Ssh setup :\n')
-        subprocess.Popen("apt-get install -y openssh-server", shell=True, stdout=freshlog, stderr=freshlog)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('Ssh setup :\n\n\n')
+            subprocess.Popen("apt-get install -y openssh-server", shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=ssh_install)
@@ -84,8 +84,9 @@ if args.tools:
     def nettools_install():
         """Setup net-tools on linux distribution which have aperture"""
         print('Net-tools setup.\n')
-        freshlog.write('Net-tools setup :\n')
-        subprocess.Popen("apt-get install -y net-tools", shell=True, stdout=freshlog, stderr=freshlog)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('Net-tools setup :\n\n\n')
+            subprocess.Popen("apt-get install -y net-tools", shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=nettools_install)
@@ -98,8 +99,9 @@ if args.tools:
     def dnsutils_install():
         """Setup dnsutils on linux distribution which have aperture"""
         print('dnsutils setup.\n')
-        freshlog.write('Dnsutils setup :\n')
-        subprocess.Popen("apt-get install -y dnsutils", shell=True, stdout=freshlog, stderr=freshlog)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('Dnsutils setup :\n\n\n')
+            subprocess.Popen("apt-get install -y dnsutils", shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dnsutils_install)
@@ -112,8 +114,9 @@ if args.tools:
     def tcpdump_install():
         """Setup tcpdump on linux distribution which have aperture"""
         print('Tcpdump setup.\n')
-        freshlog.write('tcpdump setup :\n')
-        subprocess.Popen("apt-get install -y tcpdump", shell=True, stdout=freshlog, stderr=freshlog)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('tcpdump setup :\n\n\n')
+            subprocess.Popen("apt-get install -y tcpdump", shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=tcpdump_install)
@@ -130,9 +133,9 @@ if args.dhcp:
     def dhcp_install():
         """Setup isc-dhcp-server on linux distribution which have aperture"""
         print('Isc-dhcp-server setup.\n')
-        os.system('apt-get install -y isc-dhcp-server')
-        freshlog.write('DHCP-server setup :\n')
-        subprocess.Popen("apt-get install -y isc-dhcp-server", shell=True, stdout=freshlog, stderr=freshlog)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('DHCP-server setup :\n\n\n')
+            subprocess.Popen("apt-get install -y isc-dhcp-server", shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=dhcp_install)
@@ -296,8 +299,9 @@ if args.nat or args.firewall:
         """Setup iptable-persistent with assume yes on linux distribution which have aperture"""
         os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
         os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-        freshlog.write('Ssh setp :\n')
-        subprocess.Popen("apt-get install -y iptables-persistent", shell=True, stdout=freshlog, stderr=freshlog)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('Ssh setp :\n\n\n')
+            subprocess.Popen("apt-get install -y iptables-persistent", shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Attente de la fin d'installation mis en thread par la fonction main
         thread = threading.Thread(target=iptables_install)
@@ -350,7 +354,9 @@ if args.restart:
     if args.interfaces:
         def network_restart():
             """Restart the network interfaces on Debian"""
-            os.system('/etc/init.d/networking restart')
+            with open('freshup.log', 'w') as freshlog:
+                freshlog.write('Networking Restart :\n\n\n')
+                subprocess.Popen("/etc/init.d/networking restart", shell=True, stdout=freshlog, stderr=freshlog)
 
         def main():  # Attente fin restart mis en thread par la fonction main
             thread = threading.Thread(target=network_restart)
@@ -362,7 +368,9 @@ if args.restart:
     if args.dhcp:
         def dhcp_restart():
             """Restart the isc-dhcp-serveur"""
-            os.system('/etc/init.d/isc-dhcp-server restart')
+            with open('freshup.log', 'w') as freshlog:
+                freshlog.write('Isc-dhcp-server Restart :\n\n\n')
+                subprocess.Popen("/etc/init.d/isc-dhcp-server restart", shell=True, stdout=freshlog, stderr=freshlog)
 
         def main():  # Attente de la fin du restart mis en thread par la fonction main
             thread = threading.Thread(target=dhcp_restart)
