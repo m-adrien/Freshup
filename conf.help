@@ -1,0 +1,225 @@
+Voici un exemple du fichier de configuration. Les informations se presentent sous forme d'une arborésence.
+Si vous voulez visualiser ce fichier sous forme graphique : collé le contenue de conf.json dans un des nombreux
+outils dédiés à cela, comme par exemple :  http://jsonviewer.stack.hu/
+Vous pouvez éditer ce fichier à votre guise, mais voici quelques éléments à savoir :
+
+-Les interfaces seront renommé en eth0 eth1 et eth2.
+
+-Il y'a trois grands chapitres dans ce fichier :
+    -Interfaces : Vous pourrez configurer les informations principales concernant chaque interface.
+
+    -DHCP : Dans cahque onglet portant le nom de l'interface vous pourrez modifier les règles du service DHCP
+
+    -Firewall : Dans cahque onglet portant le nom de l'interface vous trouverez les mêmes paramètres pour les
+    sous-onglet INPUT, OUTPUT, et FORWARD
+         0 = Force la fermeture du/des ports concernés (DROP)
+         1 = Valeur par défaut : le/les ports seront ouverts ou fermés en fonction du type d'interface désigné
+         2 = Force l'ouverture du/des ports concernés (ACCEPT)
+
+-Vous pouvez configurer trois différents "Types" d'interfaces. Ces type seront en fonction de ce à quoi est relié
+l'interface en question à savoir :
+
+    TYPE = LAN
+    Destiné à connecter cette interface sur la partie local du réseau à administrer
+
+        -DHCP --> on
+        -NAT en postrouting --> off
+        -Firewall :
+            INPUT
+                Established --> off
+                Ping --> off
+                DNS -->
+                HTTP -->
+                HTTPS -->
+                Printer --> off
+                DHCP --> off
+                FTP -->
+                SSH -->
+                IMAP -->
+                SMTP -->
+                POP3 -->
+                NTP -->
+                Avashi -->
+                Netbios --> off
+                LDAP -->
+
+            OUTPUT
+                Established --> off
+                Ping --> off
+                DNS -->
+                HTTP -->
+                HTTPS -->
+                Printer --> off
+                DHCP --> off
+                FTP -->
+                SSH -->
+                IMAP -->
+                SMTP -->
+                POP3 -->
+                NTP -->
+                Avashi -->
+                Netbios --> off
+                LDAP -->
+
+    TYPE = NET
+    Destiner à rejoindre une passerelle réseau publique.
+
+        -DHCP --> off
+        -NAT en postrouting --> on
+        -Firewall :
+            INPUT
+                Established -->
+                Ping -->
+                DNS -->
+                HTTP -->
+                HTTPS -->
+                Printer -->
+                DHCP -->
+                FTP -->
+                SSH -->
+                IMAP -->
+                SMTP -->
+                POP3 -->
+                NTP -->
+                Avashi -->
+                Netbios -->
+                LDAP -->
+
+            OUTPUT
+                Established -->
+                Ping -->
+                DNS -->
+                HTTP -->
+                HTTPS -->
+                Printer -->
+                DHCP -->
+                FTP -->
+                SSH -->
+                IMAP -->
+                SMTP -->
+                POP3 -->
+                NTP -->
+                Avashi -->
+                Netbios -->
+                LDAP -->
+
+
+    TYPE = DMZ
+    Désitiné à rejoindre une zone démilitarisé de notre réseau à administrer.
+        -DHCP --> off
+        -NAT en postrouting --> off
+        -Firewall :
+            INPUT
+                Established -->
+                Ping -->
+                DNS -->
+                HTTP -->
+                HTTPS -->
+                Printer -->
+                DHCP -->
+                FTP -->
+                SSH -->
+                IMAP -->
+                SMTP -->
+                POP3 -->
+                NTP -->
+                Avashi -->
+                Netbios -->
+                LDAP -->
+
+            OUTPUT
+                Established -->
+                Ping -->
+                DNS -->
+                HTTP -->
+                HTTPS -->
+                Printer -->
+                DHCP -->
+                FTP -->
+                SSH -->
+                IMAP -->
+                SMTP -->
+                POP3 -->
+                NTP -->
+                Avashi -->
+                Netbios -->
+                LDAP -->
+
+Pour bien comprendre de quoi il s'agit, ces paramètres représentent ce qui seras autaurisé à rentré ou sortir du réseau
+connecté à l'interface. A cet effet les règles INPUT et OUTPUT sont des sous-règles de catégorigorie FORWARD. Par
+exemple :
+
+Supposont un type LAN sur eth0, on auras donc IN et OUT en DHCP ce qui signifie l'application des deux règles suivantes :
+iptables -A FORWARD -i eth0 -o eth0 -p tcp --dport 68 -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth0 -p udp --dport 67 -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth0 -p udp --dport 68 -j ACCEPT
+
+Les règles INPUT et OUTPUT sont configuré dans l'onglet serveur de firewall, celui se doit pour des raisons de sécurité
+de conserver le strict nécessaaire perméttant sa maintenance.
+
+
+Ceci représente donc les fonctions personalisable qui s'ajoute en plus des fonctions de bases décrites dans le
+readme.txt. Vous trouverez ci-dessous un extrait de l'arborécence commenté.
+Si aucun port n'est spécifié pour le Firewall alors la règle concerne l'ensemble du protocle.
+
+{
+  "Interfaces": { # Bloc contenant les configurations principales des interfaces
+    "eth0": { # Bloc conernant eth0
+      "Activated": 1, # Active la configuration de l'interface 0 = ABSOLUMENT AUCUNE configuration ne sera faite
+      "IP =": "192.168.3.1", # Adresse IP de l'ilnterface
+      "NetMask": "255.255.255.0", # Masque de sous-réseau correspondant
+      "GateWay": "192.168.3.254", # Passerelle par défaut
+      "Type": "LAN", # Le type d'interface à configurer (voir ci dessus)
+      "Firewall": 1 # Configuration du firewall 0 = ABSOLUMENT AUCUNE configuration ne sera faite
+    },
+    "eth1": { # Bloc conernant eth1
+      ...
+      ...
+    },
+    "eth2": { # Bloc conernant eth2
+      ...
+      ...
+    }
+  },
+  "DHCP": { # Bloc contenant les configurations du serveur DHCP par interface
+    "eth0": { # Bloc contenant les configurations du serveur DHCP pour l'interface eth0
+      "SubNet": 1, # Déclaration du réseau de distribution
+      "NetMask": 1, # Masque de sous réseau correspondant
+      "Start": 1, # Début de la plage d'adresses délivrée
+      "End": 1, # Fin de la plage d'adresses délivrée
+      "Dgate": 1, # Passerelle par défaut communiquer aux clients
+      "Forced": 0 # Mettez la valeur sur 1 pour forcer la configuration du serveur sur cette interface (Malgré le type)
+    },
+    "eth1": { # Bloc contenant les configurations du serveur DHCP pour l'interface eth1
+      ...
+      ...
+    }
+  },
+  "FireWall": { # Bloc contenant les configurations du Firewwall par interface
+    "eth0": { # Bloc contenant les configurations du Firewall pour l'interface eth0
+      "INPUT": { # Pour les INPUT de eth0 0 = DROP | 1 = Config par défaut | 2 = ACCEPT
+        "Established": 1, # conntrack ESTABLISHED RELATED
+        "Ping": 1, # icmp
+        "DNS": 1, # tcp 53 udp 53
+        "HTTP": 1, # tcp 80
+        "HTTPS": 1, # tcp 443
+        "Printer": 1, # tcp 631 udp 631
+        "DHCP": 1, tcp 68 udp 67 68
+        "FTP": 1, tcp 20 21 22 989 990
+        "SSH" : 1, tcp 22
+        "IMAP": 1, tcp 143 220 993
+        "SMTP": 1, tcp 25 587 465
+        "POP3": 1, tcp 110 985
+        "NTP": 1, udp 123
+        "Avashi": 1, udp 5353
+        "Netbios": 1, tcp 137 138 139 445
+        "LDAP": 1 tcp 389
+      },
+      "OUTPUT": { # Pour les INPUT de eth0 0 = DROP | 1 = Config par défaut | 2 = ACCEPT
+        "Established": 1,
+        ...
+        ...
+      },
+    }
+  }
+}
