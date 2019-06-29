@@ -1,13 +1,19 @@
-_______________________________________________________________________________________________________________
-_______________________________________________FRESH UP________________________________________________________
+________________________________________________________________________________________________________________
+_______________________________________________FRESH UP_________________________________________________________
 
-_______________________________________________FRANCAIS________________________________________________________
+_______________________________________________FRANCAIS_________________________________________________________
 Pour lancer ce programme vous devez :
 1) Avoir les droits root
+<<<<<<< HEAD
 2) Avoir une connection internet fonctionelle
 3) Avoir dans le même dossier freshup et conf.ini
 4) Vous placer dans ce dossier avec la commande "cd /chemin/vers/votre/fichier/"
 5) Executer la commande suivante : "python3 freshup" (sans les guillemets)
+=======
+2) Avoir dans le même dossier freshup.py et conf.ini
+3) Vous placer dans ce dossier avec la commande "cd /chemin/vers/votre/fichier/"
+4) Executer la commande suivante : "python3 freshup.py" (sans les guillemets)
+>>>>>>> parent of b58b8da... v1.1
 
 Le script Freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide avec
 les outils essentiels à l'administration réseau.
@@ -60,13 +66,19 @@ EXIT STATUS :
 *Ce script à été réalisé par Mr M Adrien dans le cadre d'un projet de formation Openclassrooms
 *Ce programme est libre d'accès et de modification sous licence GNU
 
-_______________________________________________ENGLISH_______________________________________________________
+_______________________________________________ENGLISH________________________________________________________
 To run this programm you need to :
 1)Get the root's rights
+<<<<<<< HEAD
 2)Have a working internet connection
 3)Have in the same directory freshup and conf.ini
 4)Move into this directory with "cd /path/to/your/file/"
 5)Enter this command "python3 freshup" (without the "")
+=======
+2)Have in the same directory freshup.py and conf.ini
+3)Move into this directory with "cd /path/to/your/file/"
+4)Enter this command "python3 freshup.py" (without the "")
+>>>>>>> parent of b58b8da... v1.1
 
 This program will simply and quickly configure a freshly setup of DEBIAN with somes essentials sysadmin tools.
 By default the program will make :
