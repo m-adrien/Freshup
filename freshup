@@ -203,9 +203,7 @@ if args.tools:
             """Installe le paquet . Attent la fin de l'installation
             pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
             print('Ssh-server setup....')
-            with open('freshup.log', 'w') as freshlog:
-                freshlog.write('SSH-server setup :\n\n\n')
-                subprocess.Popen('apt-get install -y openssh-server', shell=True, stdout=freshlog, stderr=freshlog)
+            subprocess.Popen('apt-get install -y openssh-server', shell=True)
 
 
         def main():  # Mise en thread et attente du thread dans def main
@@ -225,9 +223,7 @@ if args.tools:
             """Installe le paquet . Attent la fin de l'installation
             pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
             print('net-tools setup....')
-            with open('freshup.log', 'a') as freshlog:
-                freshlog.write('net-tools setup :\n\n\n')
-                subprocess.Popen('apt-get install -y net-tools', shell=True, stdout=freshlog, stderr=freshlog)
+            subprocess.Popen('apt-get install -y net-tools', shell=True)
 
 
         def main():  # Mise en thread et attente du thread dans def main
@@ -247,9 +243,7 @@ if args.tools:
             """Installe le paquet . Attent la fin de l'installation
             pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
             print('tcp-dump setup....')
-            with open('freshup.log', 'a') as freshlog:
-                freshlog.write('tcp-dump setup :\n\n\n')
-                subprocess.Popen('apt-get install -y tcpdump', shell=True, stdout=freshlog, stderr=freshlog)
+            subprocess.Popen('apt-get install -y tcpdump', shell=True)
 
 
         def main():  # Mise en thread et attente du thread dans def main
@@ -269,9 +263,7 @@ if args.tools:
             """Installe le paquet . Attent la fin de l'installation
             pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
             print('Dns-utils setup....')
-            with open('freshup.log', 'a') as freshlog:
-                freshlog.write('Dns-utils setup :\n\n\n')
-                subprocess.Popen('apt-get install -y dnsutils', shell=True, stdout=freshlog, stderr=freshlog)
+            subprocess.Popen('apt-get install -y dnsutils', shell=True)
 
 
         def main():  # Mise en thread et attente du thread dans def main
@@ -294,9 +286,7 @@ if args.dhcp:
             """Installe le paquet . Attent la fin de l'installation
             pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
             print('DHCP-server setup....')
-            with open('freshup.log', 'a') as freshlog:
-                freshlog.write('DHCP-server setup :\n\n\n')
-                subprocess.Popen('apt-get install -y isc-dhcp-server', shell=True, stdout=freshlog, stderr=freshlog)
+            subprocess.Popen('apt-get install -y isc-dhcp-server', shell=True)
 
 
         def main():  # Mise en thread et attente du thread dans def main
@@ -1006,9 +996,7 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
 
             os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
             os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-            with open('freshup.log', 'a') as freshlog:
-                freshlog.write('Ssh setp :\n\n\n')
-                subprocess.Popen("apt-get install -y iptables-persistent", shell=True, stdout=freshlog, stderr=freshlog)
+            subprocess.Popen("apt-get install -y iptables-persistent", shell=True)
 
         def main():  # Attente de la fin d'installation mis en thread par la fonction main
             thread = threading.Thread(target=iptables_install)
