@@ -9,7 +9,8 @@ import threading  # Importation du module pour faire du thread
 import sys  # Importation des commandes sys essentiels
 import subprocess  # Importation du module subprocess
 import json  # Importation de la configuration
-import time
+import time # Importation time pour décompte avant redémarage
+import re # importation de regex pour verifié les adresses ip
 
 # Création du dictionnaire de config :
 data = open('conf.json', 'r')
@@ -29,8 +30,126 @@ parser.add_argument("-F", "--force", help="Force the installation on other distr
                     action="store_false")
 args = parser.parse_args()
 
-# ------------------------------------- Création de nos fonctions ----------------------- #
+# ------------------------------------ Verification de conf.json ------------------------ #
+# Encodage du regex pour determiner ip dans la variable regip
+regip = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}?$")
 
+# Création des dictionnaires de conf.json
+a1 = config['FireWall']['Server']
+a2 = config['FireWall']['eth0']['INPUT']
+a3 = config['FireWall']['eth0']['OUTPUT']
+a4 = config['FireWall']['eth1']['INPUT']
+a5 = config['FireWall']['eth1']['OUTPUT']
+a6 = config['FireWall']['eth2']['INPUT']
+a7 = config['FireWall']['eth2']['OUTPUT']
+b1 = config['DHCP']['eth0']
+b2 = config['DHCP']['eth1']
+b3 = config['DHCP']['eth2']
+
+
+def verifdico(dico):
+    """Vérifie le contenue d'un dictionnaire les valeurs des clé doivent corrrespondre à regip défini ailleurs en regex
+    les clé devront alors être une adress ip si non le script quittera avec un code erreur 3"""
+    for key, values in dico.items():
+        if not regip.match(values):
+            print('There is an error in conf.json > DHCP.')
+            sys.exit(3)
+
+
+verifdico(b1)
+verifdico(b2)
+verifdico(b3)
+
+
+def verifkey(key):
+    """Vérifie le contenue d'une clé la valeurs da la clé devra corrrespondre à regip défini ailleurs en regex
+    la clé doit  alors être une adress ip si non le script quittera avec un code erreur 3"""
+    if not regip.match(key):
+        print('There is an error in conf.json > Interfaces')
+        sys.exit(3)
+
+
+verifkey(config['Interfaces']['eth0']['IP'])
+verifkey(config['Interfaces']['eth0']['NetMask'])
+verifkey(config['Interfaces']['eth0']['GateWay'])
+verifkey(config['Interfaces']['eth1']['IP'])
+verifkey(config['Interfaces']['eth1']['NetMask'])
+verifkey(config['Interfaces']['eth1']['GateWay'])
+verifkey(config['Interfaces']['eth2']['IP'])
+verifkey(config['Interfaces']['eth2']['NetMask'])
+verifkey(config['Interfaces']['eth2']['GateWay'])
+
+
+def verifkey2(key):
+    """Vérifie le contenue d'une clé pour que sa valeur soit binaire, si non --> exit status = 3"""
+    if key != 0 and key != 1:
+        print('There is an error in conf.json > Interfaces')
+        sys.exit(3)
+
+
+verifkey2(config['Interfaces']['eth0']['Activated'])
+verifkey2(config['Interfaces']['eth0']['Firewall'])
+verifkey2(config['Interfaces']['eth1']['Activated'])
+verifkey2(config['Interfaces']['eth1']['Firewall'])
+verifkey2(config['Interfaces']['eth2']['Activated'])
+verifkey2(config['Interfaces']['eth2']['Firewall'])
+
+
+def verifkey3(key):
+    """Vérifie le contenue d'une clé pour que sa valeur soit égale à DMZ, LAN ou NET si non --> exit status = 3"""
+    if (key != 'DMZ' and key != 'LAN' and key != 'NET'):
+        print('There is an error in conf.json > Interfaces > Type ')
+        sys.exit(3)
+
+
+verifkey3(config['Interfaces']['eth0']['Type'])
+verifkey3(config['Interfaces']['eth1']['Type'])
+verifkey3(config['Interfaces']['eth2']['Type'])
+
+# Vérification des dictionnaire de FireWall ne pouvant contenir que trois valeurs 0 1 2 :
+if all(value in {0, 1,} for value in a1.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > Server.')
+    sys.exit(3)
+
+if all(value in {0, 1, 2} for value in a2.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > eth0 > INTPUT.')
+    sys.exit(3)
+
+if all(value in {0, 1, 2} for value in a3.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > eth0 > OUTPUT.')
+    sys.exit(3)
+
+if all(value in {0, 1, 2} for value in a4.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > eth1 > INTPUT.')
+    sys.exit(3)
+
+if all(value in {0, 1, 2} for value in a5.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > eth1 > OUTPUT.')
+    sys.exit(3)
+
+if all(value in {0, 1, 2} for value in a6.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > eth2 > INTPUT.')
+    sys.exit(3)
+
+if all(value in {0, 1, 2} for value in a7.values()):
+    pass
+else:
+    print('There is an error in conf.json : FireWall > eth2 > OUTPUT.')
+    sys.exit(3)
+
+# ------------------------------------- Création de nos fonctions ----------------------- #
 
 def remplacement(fichier, cherche, remplace):
     """Cherche dans 'fichier' une chaine de caratère la valeur 'cherche'
@@ -42,11 +161,10 @@ def remplacement(fichier, cherche, remplace):
     f.close()
 
 
-def installation(paquet,):
+def installation(paquet):
     def install():
         """Installe le paquet (écrire le nom exacte) donné en argument. Attent la fin de l'installation
         pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
-
         print('{} setup....').format(paquet)
         with open('freshup.log', 'a') as freshlog:
             freshlog.write('{} setup :\n\n\n').format(paquet)
@@ -106,51 +224,63 @@ if args.tools:
 # --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
 
 if args.dhcp:
-    installation('isc-dhcp-server')
+    print('DHCP configuration...')
+    try:
+        installation('isc-dhcp-server')
+    except:
+        print('Oops an error hapening during settup DHCP-server')
+        sys.exit(4)
+    try:
     # Configuration de dhcpd.conf
-    with open("/etc/dhcp/dhcpd.conf", "a") as dhcpd:
-        dhcpd.write('\nautoritative;\n\n')
-        if config['Interfaces']['eth0']['Type'] == 'LAN' or config['DHCP']['eth0']['Forced'] == 1:
-            dhcpeth0 = 1 # Création de la variable pour la suite
-            dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                        .format(config['DHCP']['eth0']['SubNet'], config['DHCP']['eth0']['NetMask'],
-                                config['DHCP']['eth0']['Start'], config['DHCP']['eth0']['End'],
-                                config['DHCP']['eth0']['Dgate']))
+        with open("/etc/dhcp/dhcpd.conf", "a") as dhcpd:
+            dhcpd.write('\nautoritative;\n\n')
+            if config['Interfaces']['eth0']['Type'] == 'LAN' or config['DHCP']['eth0']['Forced'] == 1:
+                dhcpeth0 = 1 # Création de la variable pour la suite
+                dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
+                            .format(config['DHCP']['eth0']['SubNet'], config['DHCP']['eth0']['NetMask'],
+                                    config['DHCP']['eth0']['Start'], config['DHCP']['eth0']['End'],
+                                    config['DHCP']['eth0']['Dgate']))
 
-        if config['Interfaces']['eth1']['Type'] == 'LAN' or config['DHCP']['eth1']['Forced'] == 1:
-            dhcpeth1 = 1 # Création de la variable pour la suite
-            dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                        .format(config['DHCP']['eth1']['SubNet'], config['DHCP']['eth1']['NetMask'],
-                                config['DHCP']['eth1']['Start'], config['DHCP']['eth1']['End'],
-                                config['DHCP']['eth1']['Dgate']))
+            if config['Interfaces']['eth1']['Type'] == 'LAN' or config['DHCP']['eth1']['Forced'] == 1:
+                dhcpeth1 = 1 # Création de la variable pour la suite
+                dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
+                            .format(config['DHCP']['eth1']['SubNet'], config['DHCP']['eth1']['NetMask'],
+                                    config['DHCP']['eth1']['Start'], config['DHCP']['eth1']['End'],
+                                    config['DHCP']['eth1']['Dgate']))
 
-        if config['Interfaces']['eth2']['Type'] == 'LAN' or config['DHCP']['eth2']['Forced'] == 1:
-            dhcpeth2 = 1 # Création de la variable pour la suite
-            dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
-                        .format(config['DHCP']['eth2']['SubNet'], config['DHCP']['eth2']['NetMask'],
-                                config['DHCP']['eth2']['Start'], config['DHCP']['eth2']['End'],
-                                config['DHCP']['eth2']['Dgate']))
+            if config['Interfaces']['eth2']['Type'] == 'LAN' or config['DHCP']['eth2']['Forced'] == 1:
+                dhcpeth2 = 1 # Création de la variable pour la suite
+                dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
+                            .format(config['DHCP']['eth2']['SubNet'], config['DHCP']['eth2']['NetMask'],
+                                    config['DHCP']['eth2']['Start'], config['DHCP']['eth2']['End'],
+                                    config['DHCP']['eth2']['Dgate']))
+    except:
+        print('Oops an error hapening during DHCP configuration')
+        sys.exit(5)
 
     # Configuration de default/isc-dhcp-server
+    try:
+        iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
 
-    iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
+        if dhcpeth0 == 1 and dhcpeth1 != 1 and dhcpeth2 != 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0"')
+        if dhcpeth0 != 1 and dhcpeth1 == 1 and dhcpeth2 != 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth1"')
+        if dhcpeth0 != 1 and dhcpeth1 != 1 and dhcpeth2 == 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth2"')
 
-    if dhcpeth0 == 1 and dhcpeth1 != 1 and dhcpeth2 != 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0"')
-    if dhcpeth0 != 1 and dhcpeth1 == 1 and dhcpeth2 != 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth1"')
-    if dhcpeth0 != 1 and dhcpeth1 != 1 and dhcpeth2 == 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth2"')
+        if dhcpeth0 == 1 and dhcpeth1 == 1 and dhcpeth2 != 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth1"')
+        if dhcpeth0 == 1 and dhcpeth1 != 1 and dhcpeth2 == 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth2"')
+        if dhcpeth0 != 1 and dhcpeth1 == 1 and dhcpeth2 == 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth1 eth2"')
 
-    if dhcpeth0 == 1 and dhcpeth1 == 1 and dhcpeth2 != 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth1"')
-    if dhcpeth0 == 1 and dhcpeth1 != 1 and dhcpeth2 == 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth2"')
-    if dhcpeth0 != 1 and dhcpeth1 == 1 and dhcpeth2 == 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth1 eth2"')
-
-    if dhcpeth0 == 1 and dhcpeth1 == 1 and dhcpeth2 == 1:
-        remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth1 eth2"')
+        if dhcpeth0 == 1 and dhcpeth1 == 1 and dhcpeth2 == 1:
+            remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth1 eth2"')
+    except:
+        print('Oops an error hapening during DHCP configuration')
+        sys.exit(5)
     print('done.\n')
 
 # ------------------------------------ Configuration FIREWALL ----------------------------- #
@@ -162,565 +292,609 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
     print('Firewall configuration ...\n')
 
     # On met en DROP toutes les policy ipv4 et ipv6
-    os.system('iptables -P INPUT DROP')
-    os.system('iptables -P OUTPUT DROP')
-    os.system('iptables -P FORWARD DROP')
-    os.system('ip6tables -P INPUT DROP')
-    os.system('ip6tables -P OUTPUT DROP')
-    os.system('ip6tables -P FORWARD DROP')
+    try:
+        os.system('iptables -P INPUT DROP')
+        os.system('iptables -P OUTPUT DROP')
+        os.system('iptables -P FORWARD DROP')
+        os.system('ip6tables -P INPUT DROP')
+        os.system('ip6tables -P OUTPUT DROP')
+        os.system('ip6tables -P FORWARD DROP')
+    except:
+        print('Oops an error hapening during Firewall configuration')
+        sys.exit(6)
     # On autorise en IPv4 les ports selon la config :
+    # ----------------------------------------------------------------- #
+    # ------------------ CONFIGURATION serveur ------------------------ #
+    # ----------------------------------------------------------------- #
+    try:
+        if config['FireWall']['Server']['Established'] != 0:
+            os.system('iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            os.system('iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+        if config['FireWall']['Server']['Ping'] != 0:
+            os.system('iptables -A INPUT -p icmp -j ACCEPT')
+            os.system('iptables -A OUTPUT -p icmp -j ACCEPT')
+        if config['FireWall']['Server']['SSH'] != 0:
+            os.system('iptables -A INPUT -p tcp --dport 22 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT')
+        if config['FireWall']['Server']['DHCP'] != 0:
+            os.system('iptables -A INPUT -p tcp --dport 68 -j ACCEPT')
+            os.system('iptables -A INPUT -p udp --dport 67 -j ACCEPT')
+            os.system('iptables -A INPUT -p udp --dport 68 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p tcp --dport 68 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p udp --dport 67 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p udp --dport 68 -j ACCEPT')
+        if config['FireWall']['Server']['DNS'] != 0:
+            os.system('iptables -A INPUT -p tcp --dport 53 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT')
+            os.system('iptables -A INPUT -p udp --dport 53 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p udp --dport 53 -j ACCEPT')
+        if config['FireWall']['Server']['NTP'] != 0:
+            os.system('iptables -A INPUT -p udp --dport 123 -j ACCEPT')
+            os.system('iptables -A OUTPUT -p udp --dport 123 -j ACCEPT')
+    except:
+        print('Oops an error hapening during Firewall server configuration')
+        sys.exit(6)
     # ----------------------------------------------------------------- #
     # ------------------ CONFIGURATION eth0 --------------------------- #
     # ----------------------------------------------------------------- #
     if config['Interfaces']['eth0']['Firewall'] == 1:
-
-        # Established dans tout les cas on install sauf si on force
-        if config['FireWall']['eth0']['INPUT']['Established']!= 0:
-            os.system('iptables -A FORWARD -i eth0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        if config['FireWall']['eth0']['INPUT']['Established'] != 0:
-            os.system('iptables -A FORWARD -o eth0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        # Ping icmp
-        if config['FireWall']['eth0']['INPUT']['Ping'] == 2:
-            os.system('iptables -A FORWARD -i eth0 -p icmp -j ACCEPT')
-        if config['FireWall']['eth0']['OUPUT']['Ping'] == 2:
-            os.system('iptables -A FORWARD -o eth0 -p icmp -j ACCEPT')
-        # DNS
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['DNS'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN') and config['FireWall']['eth0']['INPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p udp --dport 53 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p udp --dport 53 -j ACCEPT')
-        # HTTP
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['HTTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
-                config['FireWall']['eth0']['INPUT']['HTTP'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 80 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['HTTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['HTTP'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 80 -j ACCEPT')
-        # HTTPS
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['HTTPS'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
-                config['FireWall']['eth0']['INPUT']['HTTPS'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 443 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['HTTPS'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['HTTPS'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 443 -j ACCEPT')
-        # PRINTER
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['Printer'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN') and
-                config['FireWall']['eth0']['INPUT']['Printer'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 631 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p udp --dport 631 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['Printer'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN') and
-            config['FireWall']['eth0']['OUTPUT']['Printer'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 631 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p udp --dport 631 -j ACCEPT')
-        # DHCP
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['DHCP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN') and
-                config['FireWall']['eth0']['INPUT']['DHCP'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 68 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p udp --dport 67 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p udp --dport 68 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['DHCP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['DHCP'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 68 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p udp --dport 67 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p udp --dport 68 -j ACCEPT')
-        # FTP
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['FTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
-                config['FireWall']['eth0']['INPUT']['FTP'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 20 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 21 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['FTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['FTP'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 20 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 21 -j ACCEPT')
-        # SSH
-            # INPUT
-        if ((config['FireWall']['eth0']['INPUT']['SSH'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
-                config['FireWall']['eth0']['INPUT']['SSH'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 22 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['SSH'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['SSH'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 22 -j ACCEPT')
-        # IMAP
-            # INPUT
-        if config['FireWall']['eth0']['INPUT']['IMAP'] != 0:
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 143 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 220 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 993 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 143 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 220 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 993 -j ACCEPT')
-        # SMTP
-            # INPUT
-        if config['FireWall']['eth0']['INPUT']['SMTP'] != 0:
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 25 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 587 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 465 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['SMTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['SMTP'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 25 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 587 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 465 -j ACCEPT')
-        # POP3
-            # INPUT
-        if config['FireWall']['eth0']['INPUT']['POP3'] != 0:
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 110 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 985 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['POP3'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['POP3'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 110 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 985 -j ACCEPT')
-        # NTP
-            # INPUT
-        if (config['FireWall']['eth0']['INPUT']['NTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' and
-                config['FireWall']['eth0']['INPUT']['NTP'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p udp --dport 123 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth0']['OUTPUT']['NTP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
-            config['FireWall']['eth0']['OUTPUT']['NTP'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p udp --dport 123 -j ACCEPT')
-        # AVAHI
-            # INPUT
-        if config['FireWall']['eth0']['INPUT']['Avahi'] == 2:
-            os.system('iptables -A FORWARD -i eth0 -p udp --dport 5353 -j ACCEPT')
-            # OUTPUT
-        if config['FireWall']['eth0']['OUTPUT']['Avahi'] == 2:
-            os.system('iptables -A FORWARD -o eth0 -p udp --dport 5353 -j ACCEPT')
-        # NETBIOS
-            # INPUT
-        if (config['FireWall']['eth0']['INPUT']['Netbios'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' and
-                config['FireWall']['eth0']['INPUT']['Netbios'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 137 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 138 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 139 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 445 -j ACCEPT')
-            # OUTPUT
-        if (config['FireWall']['eth0']['OUTPUT']['Netbios'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' and
-            config['FireWall']['eth0']['OUTPUT']['Netbios'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 137 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 138 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 139 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 445 -j ACCEPT')
-        # LDAP
-            # INPUT
-        if (config['FireWall']['eth0']['INPUT']['LDAP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' and
-                config['FireWall']['eth0']['INPUT']['LDAP'] != 0):
-            os.system('iptables -A FORWARD -i eth0 -p tcp --dport 389 -j ACCEPT')
-            # OUTPUT
-        if (config['FireWall']['eth0']['OUTPUT']['LDAP'] == 2 or
-            config['Interfaces']['eth0']['Type'] == 'LAN' and
-            config['FireWall']['eth0']['OUTPUT']['LDAP'] != 0):
-            os.system('iptables -A FORWARD -o eth0 -p tcp --dport 389 -j ACCEPT')
+        try:
+            # Established dans tout les cas on install sauf si on force
+            if config['FireWall']['eth0']['INPUT']['Established']!= 0:
+                os.system('iptables -A FORWARD -i eth0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            if config['FireWall']['eth0']['INPUT']['Established'] != 0:
+                os.system('iptables -A FORWARD -o eth0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            # Ping icmp
+            if config['FireWall']['eth0']['INPUT']['Ping'] == 2:
+                os.system('iptables -A FORWARD -i eth0 -p icmp -j ACCEPT')
+            if config['FireWall']['eth0']['OUPUT']['Ping'] == 2:
+                os.system('iptables -A FORWARD -o eth0 -p icmp -j ACCEPT')
+            # DNS
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['DNS'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN') and config['FireWall']['eth0']['INPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 53 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p udp --dport 53 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 53 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p udp --dport 53 -j ACCEPT')
+            # HTTP
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['HTTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                    config['FireWall']['eth0']['INPUT']['HTTP'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 80 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['HTTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['HTTP'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 80 -j ACCEPT')
+            # HTTPS
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['HTTPS'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                    config['FireWall']['eth0']['INPUT']['HTTPS'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 443 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['HTTPS'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['HTTPS'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 443 -j ACCEPT')
+            # PRINTER
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['Printer'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN') and
+                    config['FireWall']['eth0']['INPUT']['Printer'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 631 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p udp --dport 631 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['Printer'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN') and
+                config['FireWall']['eth0']['OUTPUT']['Printer'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 631 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p udp --dport 631 -j ACCEPT')
+            # DHCP
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['DHCP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN') and
+                    config['FireWall']['eth0']['INPUT']['DHCP'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 68 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p udp --dport 67 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p udp --dport 68 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['DHCP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['DHCP'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 68 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p udp --dport 67 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p udp --dport 68 -j ACCEPT')
+            # FTP
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['FTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                    config['FireWall']['eth0']['INPUT']['FTP'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 20 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 21 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['FTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['FTP'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 20 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 21 -j ACCEPT')
+            # SSH
+                # INPUT
+            if ((config['FireWall']['eth0']['INPUT']['SSH'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                    config['FireWall']['eth0']['INPUT']['SSH'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 22 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['SSH'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['SSH'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 22 -j ACCEPT')
+            # IMAP
+                # INPUT
+            if config['FireWall']['eth0']['INPUT']['IMAP'] != 0:
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 143 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 220 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 993 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 143 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 220 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 993 -j ACCEPT')
+            # SMTP
+                # INPUT
+            if config['FireWall']['eth0']['INPUT']['SMTP'] != 0:
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 25 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 587 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 465 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['SMTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['SMTP'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 25 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 587 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 465 -j ACCEPT')
+            # POP3
+                # INPUT
+            if config['FireWall']['eth0']['INPUT']['POP3'] != 0:
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 110 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 985 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['POP3'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['POP3'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 110 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 985 -j ACCEPT')
+            # NTP
+                # INPUT
+            if (config['FireWall']['eth0']['INPUT']['NTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' and
+                    config['FireWall']['eth0']['INPUT']['NTP'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p udp --dport 123 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth0']['OUTPUT']['NTP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['FireWall']['eth0']['OUTPUT']['NTP'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p udp --dport 123 -j ACCEPT')
+            # AVAHI
+                # INPUT
+            if config['FireWall']['eth0']['INPUT']['Avahi'] == 2:
+                os.system('iptables -A FORWARD -i eth0 -p udp --dport 5353 -j ACCEPT')
+                # OUTPUT
+            if config['FireWall']['eth0']['OUTPUT']['Avahi'] == 2:
+                os.system('iptables -A FORWARD -o eth0 -p udp --dport 5353 -j ACCEPT')
+            # NETBIOS
+                # INPUT
+            if (config['FireWall']['eth0']['INPUT']['Netbios'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' and
+                    config['FireWall']['eth0']['INPUT']['Netbios'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 137 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 138 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 139 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 445 -j ACCEPT')
+                # OUTPUT
+            if (config['FireWall']['eth0']['OUTPUT']['Netbios'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' and
+                config['FireWall']['eth0']['OUTPUT']['Netbios'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 137 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 138 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 139 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 445 -j ACCEPT')
+            # LDAP
+                # INPUT
+            if (config['FireWall']['eth0']['INPUT']['LDAP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' and
+                    config['FireWall']['eth0']['INPUT']['LDAP'] != 0):
+                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 389 -j ACCEPT')
+                # OUTPUT
+            if (config['FireWall']['eth0']['OUTPUT']['LDAP'] == 2 or
+                config['Interfaces']['eth0']['Type'] == 'LAN' and
+                config['FireWall']['eth0']['OUTPUT']['LDAP'] != 0):
+                os.system('iptables -A FORWARD -o eth0 -p tcp --dport 389 -j ACCEPT')
+        except:
+            print('Oops an error hapening during Firewall eth0 configuration')
+        sys.exit(6)
     # ----------------------------------------------------------------- #
     # ------------------ CONFIGURATION eth1 --------------------------- #
     # ----------------------------------------------------------------- #
     if config['Interfaces']['eth1']['Firewall'] == 1:
-
-        # Established dans tout les cas on install sauf si on force
-        if config['FireWall']['eth1']['INPUT']['Established'] != 0:
-            os.system('iptables -A FORWARD -i eth1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        if config['FireWall']['eth1']['INPUT']['Established'] != 0:
-            os.system('iptables -A FORWARD -o eth1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        # Ping icmp
-        if config['FireWall']['eth1']['INPUT']['Ping'] == 2:
-            os.system('iptables -A FORWARD -i eth1 -p icmp -j ACCEPT')
-        if config['FireWall']['eth1']['OUPUT']['Ping'] == 2:
-            os.system('iptables -A FORWARD -o eth1 -p icmp -j ACCEPT')
-        # DNS
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['DNS'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN') and config['FireWall']['eth1']['INPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p udp --dport 53 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p udp --dport 53 -j ACCEPT')
-        # HTTP
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['HTTP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
-                config['FireWall']['eth1']['INPUT']['HTTP'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 80 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['HTTP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['HTTP'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 80 -j ACCEPT')
-        # HTTPS
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['HTTPS'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
-                config['FireWall']['eth1']['INPUT']['HTTPS'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 443 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['HTTPS'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['HTTPS'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 443 -j ACCEPT')
-        # PRINTER
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['Printer'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN') and
-                config['FireWall']['eth1']['INPUT']['Printer'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 631 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p udp --dport 631 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['Printer'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN') and
-                config['FireWall']['eth1']['OUTPUT']['Printer'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 631 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p udp --dport 631 -j ACCEPT')
-        # DHCP
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['DHCP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN') and
-                config['FireWall']['eth1']['INPUT']['DHCP'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 68 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p udp --dport 67 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p udp --dport 68 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['DHCP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['DHCP'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 68 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p udp --dport 67 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p udp --dport 68 -j ACCEPT')
-        # FTP
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['FTP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
-                config['FireWall']['eth1']['INPUT']['FTP'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 20 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 21 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['FTP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['FTP'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 20 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 21 -j ACCEPT')
-        # SSH
-        # INPUT
-        if ((config['FireWall']['eth1']['INPUT']['SSH'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
-                config['FireWall']['eth1']['INPUT']['SSH'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 22 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['SSH'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['SSH'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 22 -j ACCEPT')
-        # IMAP
-        # INPUT
-        if config['FireWall']['eth1']['INPUT']['IMAP'] != 0:
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 143 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 220 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 993 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 143 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 220 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 993 -j ACCEPT')
-        # SMTP
-        # INPUT
-        if config['FireWall']['eth1']['INPUT']['SMTP'] != 0:
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 25 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 587 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 465 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['SMTP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['SMTP'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 25 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 587 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 465 -j ACCEPT')
-        # POP3
-        # INPUT
-        if config['FireWall']['eth1']['INPUT']['POP3'] != 0:
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 110 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 985 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['POP3'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['POP3'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 110 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 985 -j ACCEPT')
-        # NTP
-        # INPUT
-        if (config['FireWall']['eth1']['INPUT']['NTP'] == 2 or
-                config['Interfaces']['eth1']['Type'] == 'LAN' and
-                config['FireWall']['eth1']['INPUT']['NTP'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p udp --dport 123 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth1']['OUTPUT']['NTP'] == 2 or
-             config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
-                config['FireWall']['eth1']['OUTPUT']['NTP'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p udp --dport 123 -j ACCEPT')
-        # AVAHI
-        # INPUT
-        if config['FireWall']['eth1']['INPUT']['Avahi'] == 2:
-            os.system('iptables -A FORWARD -i eth1 -p udp --dport 5353 -j ACCEPT')
-            # OUTPUT
-        if config['FireWall']['eth1']['OUTPUT']['Avahi'] == 2:
-            os.system('iptables -A FORWARD -o eth1 -p udp --dport 5353 -j ACCEPT')
-        # NETBIOS
-        # INPUT
-        if (config['FireWall']['eth1']['INPUT']['Netbios'] == 2 or
-                config['Interfaces']['eth1']['Type'] == 'LAN' and
-                config['FireWall']['eth1']['INPUT']['Netbios'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 137 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 138 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 139 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 445 -j ACCEPT')
-            # OUTPUT
-        if (config['FireWall']['eth1']['OUTPUT']['Netbios'] == 2 or
-                config['Interfaces']['eth1']['Type'] == 'LAN' and
-                config['FireWall']['eth1']['OUTPUT']['Netbios'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 137 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 138 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 139 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 445 -j ACCEPT')
-        # LDAP
-        # INPUT
-        if (config['FireWall']['eth1']['INPUT']['LDAP'] == 2 or
-                config['Interfaces']['eth1']['Type'] == 'LAN' and
-                config['FireWall']['eth1']['INPUT']['LDAP'] != 0):
-            os.system('iptables -A FORWARD -i eth1 -p tcp --dport 389 -j ACCEPT')
-            # OUTPUT
-        if (config['FireWall']['eth1']['OUTPUT']['LDAP'] == 2 or
-                config['Interfaces']['eth1']['Type'] == 'LAN' and
-                config['FireWall']['eth1']['OUTPUT']['LDAP'] != 0):
-            os.system('iptables -A FORWARD -o eth1 -p tcp --dport 389 -j ACCEPT')
+        try:
+            # Established dans tout les cas on install sauf si on force
+            if config['FireWall']['eth1']['INPUT']['Established'] != 0:
+                os.system('iptables -A FORWARD -i eth1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            if config['FireWall']['eth1']['INPUT']['Established'] != 0:
+                os.system('iptables -A FORWARD -o eth1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            # Ping icmp
+            if config['FireWall']['eth1']['INPUT']['Ping'] == 2:
+                os.system('iptables -A FORWARD -i eth1 -p icmp -j ACCEPT')
+            if config['FireWall']['eth1']['OUPUT']['Ping'] == 2:
+                os.system('iptables -A FORWARD -o eth1 -p icmp -j ACCEPT')
+            # DNS
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['DNS'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN') and config['FireWall']['eth1']['INPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 53 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p udp --dport 53 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 53 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p udp --dport 53 -j ACCEPT')
+            # HTTP
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['HTTP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                    config['FireWall']['eth1']['INPUT']['HTTP'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 80 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['HTTP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['HTTP'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 80 -j ACCEPT')
+            # HTTPS
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['HTTPS'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                    config['FireWall']['eth1']['INPUT']['HTTPS'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 443 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['HTTPS'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['HTTPS'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 443 -j ACCEPT')
+            # PRINTER
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['Printer'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN') and
+                    config['FireWall']['eth1']['INPUT']['Printer'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 631 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p udp --dport 631 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['Printer'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN') and
+                    config['FireWall']['eth1']['OUTPUT']['Printer'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 631 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p udp --dport 631 -j ACCEPT')
+            # DHCP
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['DHCP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN') and
+                    config['FireWall']['eth1']['INPUT']['DHCP'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 68 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p udp --dport 67 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p udp --dport 68 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['DHCP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['DHCP'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 68 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p udp --dport 67 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p udp --dport 68 -j ACCEPT')
+            # FTP
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['FTP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                    config['FireWall']['eth1']['INPUT']['FTP'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 20 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 21 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['FTP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['FTP'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 20 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 21 -j ACCEPT')
+            # SSH
+            # INPUT
+            if ((config['FireWall']['eth1']['INPUT']['SSH'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                    config['FireWall']['eth1']['INPUT']['SSH'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 22 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['SSH'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['SSH'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 22 -j ACCEPT')
+            # IMAP
+            # INPUT
+            if config['FireWall']['eth1']['INPUT']['IMAP'] != 0:
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 143 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 220 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 993 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 143 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 220 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 993 -j ACCEPT')
+            # SMTP
+            # INPUT
+            if config['FireWall']['eth1']['INPUT']['SMTP'] != 0:
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 25 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 587 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 465 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['SMTP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['SMTP'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 25 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 587 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 465 -j ACCEPT')
+            # POP3
+            # INPUT
+            if config['FireWall']['eth1']['INPUT']['POP3'] != 0:
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 110 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 985 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['POP3'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['POP3'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 110 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 985 -j ACCEPT')
+            # NTP
+            # INPUT
+            if (config['FireWall']['eth1']['INPUT']['NTP'] == 2 or
+                    config['Interfaces']['eth1']['Type'] == 'LAN' and
+                    config['FireWall']['eth1']['INPUT']['NTP'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p udp --dport 123 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth1']['OUTPUT']['NTP'] == 2 or
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                    config['FireWall']['eth1']['OUTPUT']['NTP'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p udp --dport 123 -j ACCEPT')
+            # AVAHI
+            # INPUT
+            if config['FireWall']['eth1']['INPUT']['Avahi'] == 2:
+                os.system('iptables -A FORWARD -i eth1 -p udp --dport 5353 -j ACCEPT')
+                # OUTPUT
+            if config['FireWall']['eth1']['OUTPUT']['Avahi'] == 2:
+                os.system('iptables -A FORWARD -o eth1 -p udp --dport 5353 -j ACCEPT')
+            # NETBIOS
+            # INPUT
+            if (config['FireWall']['eth1']['INPUT']['Netbios'] == 2 or
+                    config['Interfaces']['eth1']['Type'] == 'LAN' and
+                    config['FireWall']['eth1']['INPUT']['Netbios'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 137 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 138 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 139 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 445 -j ACCEPT')
+                # OUTPUT
+            if (config['FireWall']['eth1']['OUTPUT']['Netbios'] == 2 or
+                    config['Interfaces']['eth1']['Type'] == 'LAN' and
+                    config['FireWall']['eth1']['OUTPUT']['Netbios'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 137 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 138 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 139 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 445 -j ACCEPT')
+            # LDAP
+            # INPUT
+            if (config['FireWall']['eth1']['INPUT']['LDAP'] == 2 or
+                    config['Interfaces']['eth1']['Type'] == 'LAN' and
+                    config['FireWall']['eth1']['INPUT']['LDAP'] != 0):
+                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 389 -j ACCEPT')
+                # OUTPUT
+            if (config['FireWall']['eth1']['OUTPUT']['LDAP'] == 2 or
+                    config['Interfaces']['eth1']['Type'] == 'LAN' and
+                    config['FireWall']['eth1']['OUTPUT']['LDAP'] != 0):
+                os.system('iptables -A FORWARD -o eth1 -p tcp --dport 389 -j ACCEPT')
+        except:
+            print('Oops an error hapening during Firewall configuration')
+            sys.exit(6)
     # ----------------------------------------------------------------- #
     # ------------------ CONFIGURATION eth2 --------------------------- #
     # ----------------------------------------------------------------- #
     if config['Interfaces']['eth2']['Firewall'] == 1:
-
-        # Established dans tout les cas on install sauf si on force
-        if config['FireWall']['eth2']['INPUT']['Established'] != 0:
-            os.system('iptables -A FORWARD -i eth2 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        if config['FireWall']['eth2']['INPUT']['Established'] != 0:
-            os.system('iptables -A FORWARD -o eth2 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
-        # Ping icmp
-        if config['FireWall']['eth2']['INPUT']['Ping'] == 2:
-            os.system('iptables -A FORWARD -i eth2 -p icmp -j ACCEPT')
-        if config['FireWall']['eth2']['OUPUT']['Ping'] == 2:
-            os.system('iptables -A FORWARD -o eth2 -p icmp -j ACCEPT')
-        # DNS
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['DNS'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN') and config['FireWall']['eth2']['INPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p udp --dport 53 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p udp --dport 53 -j ACCEPT')
-        # HTTP
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['HTTP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
-                config['FireWall']['eth2']['INPUT']['HTTP'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 80 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['HTTP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['HTTP'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 80 -j ACCEPT')
-        # HTTPS
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['HTTPS'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
-                config['FireWall']['eth2']['INPUT']['HTTPS'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 443 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['HTTPS'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['HTTPS'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 443 -j ACCEPT')
-        # PRINTER
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['Printer'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN') and
-                config['FireWall']['eth2']['INPUT']['Printer'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 631 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p udp --dport 631 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['Printer'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN') and
-                config['FireWall']['eth2']['OUTPUT']['Printer'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 631 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p udp --dport 631 -j ACCEPT')
-        # DHCP
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['DHCP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN') and
-                config['FireWall']['eth2']['INPUT']['DHCP'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 68 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p udp --dport 67 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p udp --dport 68 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['DHCP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['DHCP'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 68 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p udp --dport 67 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p udp --dport 68 -j ACCEPT')
-        # FTP
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['FTP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
-                config['FireWall']['eth2']['INPUT']['FTP'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 20 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 21 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['FTP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['FTP'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 20 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 21 -j ACCEPT')
-        # SSH
-        # INPUT
-        if ((config['FireWall']['eth2']['INPUT']['SSH'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
-                config['FireWall']['eth2']['INPUT']['SSH'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 22 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['SSH'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['SSH'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 22 -j ACCEPT')
-        # IMAP
-        # INPUT
-        if config['FireWall']['eth2']['INPUT']['IMAP'] != 0:
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 143 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 220 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 993 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['DNS'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 143 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 220 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 993 -j ACCEPT')
-        # SMTP
-        # INPUT
-        if config['FireWall']['eth2']['INPUT']['SMTP'] != 0:
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 25 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 587 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 465 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['SMTP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['SMTP'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 25 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 587 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 465 -j ACCEPT')
-        # POP3
-        # INPUT
-        if config['FireWall']['eth2']['INPUT']['POP3'] != 0:
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 110 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 985 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['POP3'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['POP3'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 110 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 985 -j ACCEPT')
-        # NTP
-        # INPUT
-        if (config['FireWall']['eth2']['INPUT']['NTP'] == 2 or
-                config['Interfaces']['eth2']['Type'] == 'LAN' and
-                config['FireWall']['eth2']['INPUT']['NTP'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p udp --dport 123 -j ACCEPT')
-            # OUTPUT
-        if ((config['FireWall']['eth2']['OUTPUT']['NTP'] == 2 or
-             config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
-                config['FireWall']['eth2']['OUTPUT']['NTP'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p udp --dport 123 -j ACCEPT')
-        # AVAHI
-        # INPUT
-        if config['FireWall']['eth2']['INPUT']['Avahi'] == 2:
-            os.system('iptables -A FORWARD -i eth2 -p udp --dport 5353 -j ACCEPT')
-            # OUTPUT
-        if config['FireWall']['eth2']['OUTPUT']['Avahi'] == 2:
-            os.system('iptables -A FORWARD -o eth2 -p udp --dport 5353 -j ACCEPT')
-        # NETBIOS
-        # INPUT
-        if (config['FireWall']['eth2']['INPUT']['Netbios'] == 2 or
-                config['Interfaces']['eth2']['Type'] == 'LAN' and
-                config['FireWall']['eth2']['INPUT']['Netbios'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 137 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 138 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 139 -j ACCEPT')
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 445 -j ACCEPT')
-            # OUTPUT
-        if (config['FireWall']['eth2']['OUTPUT']['Netbios'] == 2 or
-                config['Interfaces']['eth2']['Type'] == 'LAN' and
-                config['FireWall']['eth2']['OUTPUT']['Netbios'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 137 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 138 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 139 -j ACCEPT')
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 445 -j ACCEPT')
-        # LDAP
-        # INPUT
-        if (config['FireWall']['eth2']['INPUT']['LDAP'] == 2 or
-                config['Interfaces']['eth2']['Type'] == 'LAN' and
-                config['FireWall']['eth2']['INPUT']['LDAP'] != 0):
-            os.system('iptables -A FORWARD -i eth2 -p tcp --dport 389 -j ACCEPT')
-            # OUTPUT
-        if (config['FireWall']['eth2']['OUTPUT']['LDAP'] == 2 or
-                config['Interfaces']['eth2']['Type'] == 'LAN' and
-                config['FireWall']['eth2']['OUTPUT']['LDAP'] != 0):
-            os.system('iptables -A FORWARD -o eth2 -p tcp --dport 389 -j ACCEPT')
+        try:
+            # Established dans tout les cas on install sauf si on force
+            if config['FireWall']['eth2']['INPUT']['Established'] != 0:
+                os.system('iptables -A FORWARD -i eth2 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            if config['FireWall']['eth2']['INPUT']['Established'] != 0:
+                os.system('iptables -A FORWARD -o eth2 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT')
+            # Ping icmp
+            if config['FireWall']['eth2']['INPUT']['Ping'] == 2:
+                os.system('iptables -A FORWARD -i eth2 -p icmp -j ACCEPT')
+            if config['FireWall']['eth2']['OUPUT']['Ping'] == 2:
+                os.system('iptables -A FORWARD -o eth2 -p icmp -j ACCEPT')
+            # DNS
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['DNS'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN') and config['FireWall']['eth2']['INPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 53 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p udp --dport 53 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 53 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p udp --dport 53 -j ACCEPT')
+            # HTTP
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['HTTP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                    config['FireWall']['eth2']['INPUT']['HTTP'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 80 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['HTTP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['HTTP'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 80 -j ACCEPT')
+            # HTTPS
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['HTTPS'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                    config['FireWall']['eth2']['INPUT']['HTTPS'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 443 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['HTTPS'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['HTTPS'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 443 -j ACCEPT')
+            # PRINTER
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['Printer'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN') and
+                    config['FireWall']['eth2']['INPUT']['Printer'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 631 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p udp --dport 631 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['Printer'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN') and
+                    config['FireWall']['eth2']['OUTPUT']['Printer'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 631 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p udp --dport 631 -j ACCEPT')
+            # DHCP
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['DHCP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN') and
+                    config['FireWall']['eth2']['INPUT']['DHCP'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 68 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p udp --dport 67 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p udp --dport 68 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['DHCP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['DHCP'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 68 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p udp --dport 67 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p udp --dport 68 -j ACCEPT')
+            # FTP
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['FTP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                    config['FireWall']['eth2']['INPUT']['FTP'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 20 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 21 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['FTP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['FTP'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 20 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 21 -j ACCEPT')
+            # SSH
+            # INPUT
+            if ((config['FireWall']['eth2']['INPUT']['SSH'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                    config['FireWall']['eth2']['INPUT']['SSH'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 22 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['SSH'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['SSH'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 22 -j ACCEPT')
+            # IMAP
+            # INPUT
+            if config['FireWall']['eth2']['INPUT']['IMAP'] != 0:
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 143 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 220 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 993 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['DNS'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 143 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 220 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 993 -j ACCEPT')
+            # SMTP
+            # INPUT
+            if config['FireWall']['eth2']['INPUT']['SMTP'] != 0:
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 25 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 587 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 465 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['SMTP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['SMTP'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 25 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 587 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 465 -j ACCEPT')
+            # POP3
+            # INPUT
+            if config['FireWall']['eth2']['INPUT']['POP3'] != 0:
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 110 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 985 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['POP3'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['POP3'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 110 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 985 -j ACCEPT')
+            # NTP
+            # INPUT
+            if (config['FireWall']['eth2']['INPUT']['NTP'] == 2 or
+                    config['Interfaces']['eth2']['Type'] == 'LAN' and
+                    config['FireWall']['eth2']['INPUT']['NTP'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p udp --dport 123 -j ACCEPT')
+                # OUTPUT
+            if ((config['FireWall']['eth2']['OUTPUT']['NTP'] == 2 or
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                    config['FireWall']['eth2']['OUTPUT']['NTP'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p udp --dport 123 -j ACCEPT')
+            # AVAHI
+            # INPUT
+            if config['FireWall']['eth2']['INPUT']['Avahi'] == 2:
+                os.system('iptables -A FORWARD -i eth2 -p udp --dport 5353 -j ACCEPT')
+                # OUTPUT
+            if config['FireWall']['eth2']['OUTPUT']['Avahi'] == 2:
+                os.system('iptables -A FORWARD -o eth2 -p udp --dport 5353 -j ACCEPT')
+            # NETBIOS
+            # INPUT
+            if (config['FireWall']['eth2']['INPUT']['Netbios'] == 2 or
+                    config['Interfaces']['eth2']['Type'] == 'LAN' and
+                    config['FireWall']['eth2']['INPUT']['Netbios'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 137 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 138 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 139 -j ACCEPT')
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 445 -j ACCEPT')
+                # OUTPUT
+            if (config['FireWall']['eth2']['OUTPUT']['Netbios'] == 2 or
+                    config['Interfaces']['eth2']['Type'] == 'LAN' and
+                    config['FireWall']['eth2']['OUTPUT']['Netbios'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 137 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 138 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 139 -j ACCEPT')
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 445 -j ACCEPT')
+            # LDAP
+            # INPUT
+            if (config['FireWall']['eth2']['INPUT']['LDAP'] == 2 or
+                    config['Interfaces']['eth2']['Type'] == 'LAN' and
+                    config['FireWall']['eth2']['INPUT']['LDAP'] != 0):
+                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 389 -j ACCEPT')
+                # OUTPUT
+            if (config['FireWall']['eth2']['OUTPUT']['LDAP'] == 2 or
+                    config['Interfaces']['eth2']['Type'] == 'LAN' and
+                    config['FireWall']['eth2']['OUTPUT']['LDAP'] != 0):
+                os.system('iptables -A FORWARD -o eth2 -p tcp --dport 389 -j ACCEPT')
+        except:
+            print('Oops an error hapening during Firewall configuration')
+            sys.exit(6)
     # ----------------------------------------------------------------- #
     # -----------------FIN DE LA CONFIG PARE-FEU----------------------- #
     # ----------------------------------------------------------------- #
@@ -746,74 +920,90 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
     print('Iptables-persistent setup...\n')
 # Ici on utilise une nouvelle fonction d'installation car iptables-persistent ne suporte pas le assume-yes (-y)
 # on doit donc générer deux variable pour le système avant de lancer l'installation.
-    def iptables_install():
-        """setup iptables-persistent with "assume yes" on linux distribution which have aperture,
-        two sys.var are added before launching the setup for disabling the windows display during the settup"""
+    try:
+        def iptables_install():
+            """setup iptables-persistent with "assume yes" on linux distribution which have aperture,
+            two sys.var are added before launching the setup for disabling the windows display during the settup"""
 
-        os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
-        os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-        with open('freshup.log', 'a') as freshlog:
-            freshlog.write('Ssh setp :\n\n\n')
-            subprocess.Popen("apt-get install -y iptables-persistent", shell=True, stdout=freshlog, stderr=freshlog)
+            os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
+            os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
+            with open('freshup.log', 'a') as freshlog:
+                freshlog.write('Ssh setp :\n\n\n')
+                subprocess.Popen("apt-get install -y iptables-persistent", shell=True, stdout=freshlog, stderr=freshlog)
 
-    def main():  # Attente de la fin d'installation mis en thread par la fonction main
-        thread = threading.Thread(target=iptables_install)
-        thread.start()
-        thread.join()
-    if __name__ == '__main__':
-        main()
+        def main():  # Attente de la fin d'installation mis en thread par la fonction main
+            thread = threading.Thread(target=iptables_install)
+            thread.start()
+            thread.join()
+        if __name__ == '__main__':
+            main()
+    except:
+        print('Oops an error hapening during Iptables-persistent settup')
+        sys.exit(4)
     print('done.\n')
 
 # ----------------------------------- Activation du routage ------------------------------- #
 
 if args.route:
-    sysctl = open('/etc/sysctl.conf', 'r')
-    if ('#net.ipv4.ip_forward=1' or '# net.ipv4.ip_forward=1') in sysctl:
-        if '# net.ipv4.ip_forward=1' in sysctl:
-            remplacement('/etc/sysctl.conf', '# net.ipv4.ip_forward=1', 'net.ipv4.ip_forward=1')
+    try:
+        sysctl = open('/etc/sysctl.conf', 'r')
+        if ('#net.ipv4.ip_forward=1' or '# net.ipv4.ip_forward=1') in sysctl:
+            if '# net.ipv4.ip_forward=1' in sysctl:
+                remplacement('/etc/sysctl.conf', '# net.ipv4.ip_forward=1', 'net.ipv4.ip_forward=1')
+                sysctl.close()
+            elif '#net.ipv4.ip_forward=1' in sysctl:
+                remplacement('/etc/sysctl.conf', '#net.ipv4.ip_forward=1', 'net.ipv4.ip_forward=1')
+                sysctl.close()
+        elif 'net.ipv4.ip_forward=1' in sysctl:
+            print('Sysctl.conf already configured for forwarding')
             sysctl.close()
-        elif '#net.ipv4.ip_forward=1' in sysctl:
-            remplacement('/etc/sysctl.conf', '#net.ipv4.ip_forward=1', 'net.ipv4.ip_forward=1')
+        else:
+            print('No line with ipv4 forwarding configuration found in sysctl.conf : '
+                  'adding a new line at the end of the file')
+            sysctl = open("/etc/sysctl.conf", "a")
+            sysctl.write('\nnet.ipv4.ip_forward=1\n')
             sysctl.close()
-    elif 'net.ipv4.ip_forward=1' in sysctl:
-        print('Sysctl.conf already configured for forwarding')
-        sysctl.close()
-    else:
-        print('No line with ipv4 forwarding configuration found in sysctl.conf : '
-              'adding a new line at the end of the file')
-        sysctl = open("/etc/sysctl.conf", "a")
-        sysctl.write('\nnet.ipv4.ip_forward=1\n')
-        sysctl.close()
-    os.system('sysctl -p /etc/sysctl.conf')
+        os.system('sysctl -p /etc/sysctl.conf')
+    except:
+        print('Oops an error hapening during sysctl configuration')
+        sys.exit(7)
     print("Forwarding enable")
 
 # --------------------------------- Configuration des interfaces -------------------------- #
 
 if args.interfaces:
     print('Renaming in ethx...')
-    remplacement('/etc/default/grub', 'GRUB_CMDLINE_LINUX=""', 'GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"')
-    print('Interfaces configuration...')
-    # Ouverture et ecriture (erase) du fichier de conf
-    interfaces = open("/etc/network/interfaces", "w")
-    # Insertion de la conf de base
-    interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
-    # Insertion de la conf de eth0
-    if config['Interfaces']['eth0']['Activated'] == 1:
-        interfaces.write("#Iface 1\nauto eth0\niface eth0 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                         .format(config['Interfaces']['eth0']['IP'], config['Interfaces']['eth0']['NetMask'],
-                                 config['Interfaces']['eth0']['GateWay']))
-    # Insertion de la conf de eth1
-    if config['Interfaces']['eth1']['Activated'] == 1:
-        interfaces.write("#Iface 2\nauto eth1\niface eth1 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                         .format(config['Interfaces']['eth1']['IP'], config['Interfaces']['eth1']['NetMask'],
-                                 config['Interfaces']['eth1']['GateWay']))
-    # Insertion de la conf de eth0
-    if config['Interfaces']['eth2']['Activated'] == 1:
-        interfaces.write("#Iface 3\nauto eth2\niface eth2 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                         .format(config['Interfaces']['eth2']['IP'], config['Interfaces']['eth3']['NetMask'],
-                                 config['Interfaces']['eth2']['GateWay']))
-    # Fermeture du fichier
-    interfaces.close()
+    try:
+        remplacement('/etc/default/grub', 'GRUB_CMDLINE_LINUX=""', 'GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"')
+    except:
+        print('Oops an error hapening during renaming in ethX interfaces')
+        sys.exit(7)
+    try:
+        print('Interfaces configuration...')
+        # Ouverture et ecriture (erase) du fichier de conf
+        interfaces = open("/etc/network/interfaces", "w")
+        # Insertion de la conf de base
+        interfaces.write("source /etc/network/interfaces.d/*\n\n#loopback iface\nauto lo\niface lo inet loopback\n\n")
+        # Insertion de la conf de eth0
+        if config['Interfaces']['eth0']['Activated'] == 1:
+            interfaces.write("#Iface 1\nauto eth0\niface eth0 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                             .format(config['Interfaces']['eth0']['IP'], config['Interfaces']['eth0']['NetMask'],
+                                     config['Interfaces']['eth0']['GateWay']))
+        # Insertion de la conf de eth1
+        if config['Interfaces']['eth1']['Activated'] == 1:
+            interfaces.write("#Iface 2\nauto eth1\niface eth1 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                             .format(config['Interfaces']['eth1']['IP'], config['Interfaces']['eth1']['NetMask'],
+                                     config['Interfaces']['eth1']['GateWay']))
+        # Insertion de la conf de eth0
+        if config['Interfaces']['eth2']['Activated'] == 1:
+            interfaces.write("#Iface 3\nauto eth2\niface eth2 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
+                             .format(config['Interfaces']['eth2']['IP'], config['Interfaces']['eth3']['NetMask'],
+                                     config['Interfaces']['eth2']['GateWay']))
+        # Fermeture du fichier
+        interfaces.close()
+    except:
+        print('Oops an error hapening during interfaces configuration')
+        sys.exit(7)
     # --- Configuration interface terminée --- #
     print('done.\n')
 

@@ -4,7 +4,7 @@
     <list default="true" id="ff310d0f-c84f-4b37-afbb-120f3c3942b5" name="Default Changelist" comment="">
       <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conf.help" beforeDir="false" afterPath="$PROJECT_DIR$/conf.help" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Readme.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/conf.json" beforeDir="false" afterPath="$PROJECT_DIR$/conf.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/freshup.py" beforeDir="false" afterPath="$PROJECT_DIR$/freshup.py" afterDir="false" />
     </list>
@@ -33,7 +33,7 @@
       <content type="file-editors">
         <state>
           <leaf>
-            <file pinned="false" current-in-tab="true">
+            <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/conf.help">
                 <provider selected="true" editor-type-id="text-editor">
                   <state relative-caret-position="1166">
@@ -42,11 +42,11 @@
                 </provider>
               </entry>
             </file>
-            <file pinned="false" current-in-tab="false">
+            <file pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/conf.json">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="2160">
-                    <caret line="90" column="18" lean-forward="true" selection-start-line="90" selection-start-column="18" selection-end-line="90" selection-end-column="18" />
+                  <state relative-caret-position="-480">
+                    <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
                   </state>
                 </provider>
               </entry>
@@ -61,28 +61,22 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/freshup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="677">
-              <caret line="833" lean-forward="true" selection-start-line="833" selection-end-line="833" />
+            <state relative-caret-position="9893">
+              <caret line="981" column="44" lean-forward="true" selection-start-line="981" selection-start-column="44" selection-end-line="981" selection-end-column="44" />
               <folding>
                 <element signature="e#138#194#0" expanded="true" />
-                <element signature="e#1709#2000#0" />
-                <element signature="e#2034#2760#0" />
-                <element signature="e#2057#2528#0" />
-                <element signature="e#2607#2693#0" />
-                <element signature="e#2883#3461#0" />
-                <element signature="e#3753#4155#0" />
-                <element signature="e#4166#4268#0" />
-                <element signature="e#4384#4531#0" />
-                <element signature="e#4646#7649#0" />
-                <element signature="e#7960#18850#0" />
-                <element signature="e#8491#18425#0" />
-                <element signature="e#20028#31388#0" />
-                <element signature="e#31600#42960#0" />
-                <element signature="e#15596#16032#0" />
-                <element signature="e#16373#17554#0" />
-                <element signature="e#17670#18602#0" />
-                <element signature="e#18723#20444#0" />
-                <element signature="e#20703#20743#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="273">
+              <caret line="28" column="1" selection-start-line="28" selection-start-column="1" selection-end-line="146" />
+              <folding>
+                <element signature="e#1#57#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -91,17 +85,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Readme.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="42" selection-start-line="16" selection-start-column="42" selection-end-line="16" selection-end-column="42" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="56" lean-forward="true" selection-end-line="180" selection-end-column="77" />
+            <state relative-caret-position="762">
+              <caret line="62" column="45" selection-start-line="62" selection-start-column="45" selection-end-line="62" selection-end-column="45" />
             </state>
           </provider>
         </entry>
@@ -126,6 +111,7 @@
       <find>eth0</find>
       <find>eth1</find>
       <find>Avashi</find>
+      <find>if</find>
     </findStrings>
     <replaceStrings>
       <replace>FireWall</replace>
@@ -133,6 +119,7 @@
       <replace>eth1</replace>
       <replace>eth2</replace>
       <replace>Avahi</replace>
+      <replace>if not</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -147,7 +134,6 @@
         <option value="$PROJECT_DIR$/freshup.conf" />
         <option value="$PROJECT_DIR$/conf.py" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/Readme.txt" />
         <option value="$PROJECT_DIR$/test.txt" />
         <option value="$PROJECT_DIR$/freshup" />
         <option value="$PROJECT_DIR$/test" />
@@ -157,8 +143,9 @@
         <option value="$PROJECT_DIR$/Test2.py" />
         <option value="$PROJECT_DIR$/conf.json.help" />
         <option value="$PROJECT_DIR$/conf.help" />
-        <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/conf.json" />
+        <option value="$PROJECT_DIR$/test.py" />
+        <option value="$PROJECT_DIR$/Readme.txt" />
         <option value="$PROJECT_DIR$/freshup.py" />
       </list>
     </option>
@@ -368,23 +355,23 @@
       <workItem from="1561647037134" duration="31075000" />
       <workItem from="1561760870750" duration="74000" />
       <workItem from="1561760961407" duration="1297000" />
-      <workItem from="1561799661863" duration="8639000" />
+      <workItem from="1561799661863" duration="26284000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="207846000" />
+    <option name="totallyTimeSpent" value="225491000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.07569297" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.07675906" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.1191766" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.097508125" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.18093175" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3125649" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -402,12 +389,12 @@
       <window_info anchor="right" id="Database" order="4" weight="0.015991472" />
     </layout>
     <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.07569297" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.07675906" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.1191766" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.17984831" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.18093175" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3125649" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -430,7 +417,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Freshup$Test2.coverage" NAME="Test2 Coverage Results" MODIFIED="1561656038585" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Freshup$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1561816129535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Freshup$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1561841032556" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Freshup$main.coverage" NAME="main Coverage Results" MODIFIED="1560793277858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Freshup$test.coverage" NAME="test Coverage Results" MODIFIED="1561447710986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Freshup$based.coverage" NAME="based Coverage Results" MODIFIED="1560802726359" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -452,16 +439,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/freshup">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5814">
-          <caret line="342" column="20" selection-start-line="342" selection-start-column="20" selection-end-line="342" selection-end-column="20" />
-          <folding>
-            <element signature="e#138#194#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test.txt" />
     <entry file="file://$PROJECT_DIR$/Test2.py" />
     <entry file="file://$PROJECT_DIR$/test" />
@@ -472,27 +449,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Readme.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="42" selection-start-line="16" selection-start-column="42" selection-end-line="16" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="56" lean-forward="true" selection-end-line="180" selection-end-column="77" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/conf.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2160">
-          <caret line="90" column="18" lean-forward="true" selection-start-line="90" selection-start-column="18" selection-end-line="90" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/conf.help">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1166">
@@ -500,30 +456,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/freshup.py">
+    <entry file="file://$PROJECT_DIR$/freshup">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="677">
-          <caret line="833" lean-forward="true" selection-start-line="833" selection-end-line="833" />
+        <state relative-caret-position="1938">
+          <caret line="342" column="20" selection-start-line="342" selection-start-column="20" selection-end-line="342" selection-end-column="20" />
           <folding>
             <element signature="e#138#194#0" expanded="true" />
-            <element signature="e#1709#2000#0" />
-            <element signature="e#2034#2760#0" />
-            <element signature="e#2057#2528#0" />
-            <element signature="e#2607#2693#0" />
-            <element signature="e#2883#3461#0" />
-            <element signature="e#3753#4155#0" />
-            <element signature="e#4166#4268#0" />
-            <element signature="e#4384#4531#0" />
-            <element signature="e#4646#7649#0" />
-            <element signature="e#7960#18850#0" />
-            <element signature="e#8491#18425#0" />
-            <element signature="e#20028#31388#0" />
-            <element signature="e#31600#42960#0" />
-            <element signature="e#15596#16032#0" />
-            <element signature="e#16373#17554#0" />
-            <element signature="e#17670#18602#0" />
-            <element signature="e#18723#20444#0" />
-            <element signature="e#20703#20743#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="28" column="1" selection-start-line="28" selection-start-column="1" selection-end-line="146" />
+          <folding>
+            <element signature="e#1#57#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/conf.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-480">
+          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Readme.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="762">
+          <caret line="62" column="45" selection-start-line="62" selection-start-column="45" selection-end-line="62" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/freshup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9893">
+          <caret line="981" column="44" lean-forward="true" selection-start-line="981" selection-start-column="44" selection-end-line="981" selection-end-column="44" />
+          <folding>
+            <element signature="e#138#194#0" expanded="true" />
           </folding>
         </state>
       </provider>

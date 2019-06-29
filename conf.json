@@ -2,55 +2,50 @@
   "Interfaces": {
     "eth0": {
       "Activated": 1,
-      "IP =": "192.168.3.1",
+      "IP": "192.168.0.1",
+      "NetMask": "255.255.255.0",
+      "GateWay": "192.168.3.254",
+      "Type": "LAN",
+      "Firewall": 1
+    },
+    "eth1": {
+      "Activated": 1,
+      "IP": "192.168.1.1",
       "NetMask": "255.255.255.0",
       "GateWay": "192.168.3.254",
       "Type": "DMZ",
       "Firewall": 1
     },
-    "eth1": {
-      "Activated": 1,
-      "IP =": "192.168.3.1",
-      "NetMask": "255.255.255.0",
-      "GateWay": "192.168.3.254",
-      "Type": "LAN",
-      "Firewall": 1
-    },
     "eth2": {
       "Activated": 1,
-      "IP =": "192.168.3.1",
+      "IP": "192.168.2.1",
       "NetMask": "255.255.255.0",
       "GateWay": "192.168.3.254",
-      "Type": "LAN",
+      "Type": "NET",
       "Firewall": 1
     }
   },
   "DHCP": {
     "eth0": {
-      "SubNet": 1,
-      "NetMask": 1,
-      "Start": 1,
-      "End": 1,
-      "Dgate": 1,
-      "Printer": 1,
-      "DHCP": 1,
-      "Forced": 1
+      "SubNet": "192.168.0.0",
+      "NetMask": "255.255.255.0",
+      "Start": "192.168.0.2",
+      "End": "192.168.0.253",
+      "Dgate": "192.168.0.254"
     },
     "eth1": {
-      "SubNet": 1,
-      "NetMask": 1,
-      "Start": 1,
-      "End": 1,
-      "Dgate": 1,
-      "Forced": 1
+      "SubNet": "192.168.1.0",
+      "NetMask": "255.255.255.0",
+      "Start": "192.168.1.2",
+      "End": "192.168.1.253",
+      "Dgate": "192.168.1.254"
     },
     "eth2": {
-      "SubNet": 1,
-      "NetMask": 1,
-      "Start": 1,
-      "End": 1,
-      "Dgate": 1,
-      "Forced": 1
+      "SubNet": "192.168.2.0",
+      "NetMask": "255.255.255.0",
+      "Start": "192.168.2.2",
+      "End": "192.168.2.253",
+      "Dgate": "192.168.2.254"
     }
   },
   "FireWall": {
