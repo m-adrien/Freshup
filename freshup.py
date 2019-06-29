@@ -167,8 +167,9 @@ def installation(paquet):
         pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
         print('{} setup....').format(paquet)
         with open('freshup.log', 'a') as freshlog:
-            freshlog.write('{} setup :\n\n\n').format(paquet)
-            subprocess.Popen("apt-get install -y {}", shell=True, stdout=freshlog, stderr=freshlog).format(paquet)
+            freshlog.write('{} setup :\n\n\n'.format(paquet))
+            commande = 'apt-get install -y {}'.format(paquet)
+            subprocess.Popen(commande, shell=True, stdout=freshlog, stderr=freshlog)
 
     def main():  # Mise en thread et attente du thread dans def main
         thread = threading.Thread(target=install)
