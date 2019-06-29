@@ -5,8 +5,8 @@
       "IP =": "192.168.3.1",
       "NetMask": "255.255.255.0",
       "GateWay": "192.168.3.254",
-      "Type": "LAN",
-      "Firewall": 0
+      "Type": "DMZ",
+      "Firewall": 1
     },
     "eth1": {
       "Activated": 1,
@@ -14,7 +14,7 @@
       "NetMask": "255.255.255.0",
       "GateWay": "192.168.3.254",
       "Type": "LAN",
-      "Firewall": 0
+      "Firewall": 1
     },
     "eth2": {
       "Activated": 1,
@@ -22,7 +22,7 @@
       "NetMask": "255.255.255.0",
       "GateWay": "192.168.3.254",
       "Type": "LAN",
-      "Firewall": 0
+      "Firewall": 1
     }
   },
   "DHCP": {
@@ -54,6 +54,14 @@
     }
   },
   "FireWall": {
+    "Server": {
+      "Established": 1,
+      "Ping": 1,
+      "SSH": 1,
+      "DHCP": 0,
+      "DNS": 0,
+      "NTP": 0
+    },
     "eth0": {
       "INPUT": {
         "Established": 1,
@@ -69,7 +77,7 @@
         "SMTP": 1,
         "POP3": 1,
         "NTP": 1,
-        "Avashi": 1,
+        "Avahi": 1,
         "Netbios": 1,
         "LDAP": 1
       },
@@ -87,25 +95,7 @@
         "SMTP": 1,
         "POP3": 1,
         "NTP": 1,
-        "Avashi": 1,
-        "Netbios": 1,
-        "LDAP": 1
-      },
-      "FORWARD": {
-        "Established": 1,
-        "Ping": 1,
-        "DNS":  1,
-        "HTTP":  1,
-        "HTTPS": 1,
-        "Printer": 1,
-        "DHCP": 1,
-        "FTP": 1,
-        "SSH" : 1,
-        "IMAP": 1,
-        "SMTP": 1,
-        "POP3": 1,
-        "NTP": 1,
-        "Avashi": 1,
+        "Avahi": 1,
         "Netbios": 1,
         "LDAP": 1
       }
@@ -125,7 +115,7 @@
         "SMTP": 1,
         "POP3": 1,
         "NTP": 1,
-        "Avashi": 1,
+        "Avahi": 1,
         "Netbios": 1,
         "LDAP": 1
       },
@@ -143,25 +133,7 @@
         "SMTP": 1,
         "POP3": 1,
         "NTP": 1,
-        "Avashi": 1,
-        "Netbios": 1,
-        "LDAP": 1
-      },
-      "FORWARD": {
-        "Established": 1,
-        "Ping": 1,
-        "DNS": 1,
-        "HTTP": 1,
-        "HTTPS": 1,
-        "Printer": 1,
-        "DHCP": 1,
-        "FTP": 1,
-        "SSH" : 1,
-        "IMAP": 1,
-        "SMTP": 1,
-        "POP3": 1,
-        "NTP": 1,
-        "Avashi": 1,
+        "Avahi": 1,
         "Netbios": 1,
         "LDAP": 1
       }
@@ -181,7 +153,7 @@
         "SMTP": 1,
         "POP3": 1,
         "NTP": 1,
-        "Avashi": 1,
+        "Avahi": 1,
         "Netbios": 1,
         "LDAP": 1
       },
@@ -199,25 +171,7 @@
         "SMTP": 1,
         "POP3": 1,
         "NTP": 1,
-        "Avashi": 1,
-        "Netbios": 1,
-        "LDAP": 1
-      },
-      "FORWARD": {
-        "Established": 1,
-        "Ping": 1,
-        "DNS":  1,
-        "HTTP":  1,
-        "HTTPS": 1,
-        "Printer": 1,
-        "DHCP": 1,
-        "FTP": 1,
-        "SSH" : 1,
-        "IMAP": 1,
-        "SMTP": 1,
-        "POP3": 1,
-        "NTP": 1,
-        "Avashi": 1,
+        "Avahi": 1,
         "Netbios": 1,
         "LDAP": 1
       }

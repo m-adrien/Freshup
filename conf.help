@@ -1,6 +1,6 @@
 Voici un exemple du fichier de configuration. Les informations se presentent sous forme d'une arborésence.
 Si vous voulez visualiser ce fichier sous forme graphique : collé le contenue de conf.json dans un des nombreux
-outils dédiés à cela, comme par exemple :  http://jsonviewer.stack.hu/
+outils dédiés à cela, comme par exemple :
 Vous pouvez éditer ce fichier à votre guise, mais voici quelques éléments à savoir :
 
 -Les interfaces seront renommé en eth0 eth1 et eth2.
@@ -26,82 +26,82 @@ l'interface en question à savoir :
         -NAT en postrouting --> off
         -Firewall :
             INPUT
-                Established --> off
-                Ping --> off
-                DNS -->
-                HTTP -->
-                HTTPS -->
-                Printer --> off
-                DHCP --> off
-                FTP -->
-                SSH -->
-                IMAP -->
-                SMTP -->
-                POP3 -->
-                NTP -->
-                Avashi -->
-                Netbios --> off
-                LDAP -->
+                Established --> on
+                -Ping --> off
+                -DNS --> on
+                -HTTP --> off
+                -HTTPS --> off
+                -Printer --> on
+                -DHCP --> on
+                -FTP --> off
+                -SSH --> on
+                IMAP --> on
+                SMTP --> on
+                POP3 --> on
+                NTP --> on
+                Avahi --> off
+                Netbios --> on
+                LDAP --> on
 
             OUTPUT
-                Established --> off
+                Established --> on
                 Ping --> off
-                DNS -->
-                HTTP -->
-                HTTPS -->
-                Printer --> off
-                DHCP --> off
-                FTP -->
-                SSH -->
-                IMAP -->
-                SMTP -->
-                POP3 -->
-                NTP -->
-                Avashi -->
-                Netbios --> off
-                LDAP -->
+                DNS -->  on
+                HTTP -->  on
+                HTTPS -->  on
+                Printer --> on
+                DHCP --> on
+                FTP --> on
+                SSH --> on
+                IMAP --> on
+                SMTP --> on
+                POP3 --> on
+                NTP -->  on
+                Avahi --> off
+                Netbios --> on
+                LDAP --> on
 
     TYPE = NET
-    Destiner à rejoindre une passerelle réseau publique.
+    Destiné à rejoindre une passerelle réseau publique.
 
         -DHCP --> off
         -NAT en postrouting --> on
         -Firewall :
             INPUT
-                Established -->
-                Ping -->
-                DNS -->
-                HTTP -->
-                HTTPS -->
-                Printer -->
-                DHCP -->
-                FTP -->
-                SSH -->
-                IMAP -->
-                SMTP -->
-                POP3 -->
-                NTP -->
-                Avashi -->
-                Netbios -->
-                LDAP -->
+                Established --> on
+                Ping --> off
+                DNS --> off
+                HTTP --> on
+                HTTPS --> on
+                Printer --> off
+                DHCP --> off
+                FTP --> on
+                SSH --> off
+                IMAP --> on
+                SMTP --> on
+                POP3 --> on
+                NTP --> off
+                Avahi --> off
+                Netbios --> off
+                LDAP --> off
 
             OUTPUT
-                Established -->
-                Ping -->
-                DNS -->
-                HTTP -->
-                HTTPS -->
-                Printer -->
-                DHCP -->
-                FTP -->
-                SSH -->
-                IMAP -->
-                SMTP -->
-                POP3 -->
-                NTP -->
-                Avashi -->
-                Netbios -->
-                LDAP -->
+                Established --> on
+                Ping --> off
+                DNS --> on
+                HTTP --> on
+                HTTPS --> on
+                Printer --> off
+                DHCP --> on
+                FTP --> on
+                SSH --> on
+                IMAP --> on
+                SMTP --> on
+                POP3 --> on
+                NTP --> on
+                Avahi --> off
+                Netbios --> off
+                LDAP --> off
 
 
     TYPE = DMZ
@@ -110,40 +110,40 @@ l'interface en question à savoir :
         -NAT en postrouting --> off
         -Firewall :
             INPUT
-                Established -->
-                Ping -->
-                DNS -->
-                HTTP -->
-                HTTPS -->
-                Printer -->
-                DHCP -->
-                FTP -->
-                SSH -->
-                IMAP -->
-                SMTP -->
-                POP3 -->
-                NTP -->
-                Avashi -->
-                Netbios -->
-                LDAP -->
+                Established --> on
+                Ping --> off
+                DNS --> off
+                HTTP --> on
+                HTTPS --> on
+                Printer --> off
+                DHCP --> off
+                FTP --> on
+                SSH --> on
+                IMAP --> on
+                SMTP --> on
+                POP3 --> on
+                NTP --> off
+                Avahi --> off
+                Netbios --> off
+                LDAP --> off
 
             OUTPUT
-                Established -->
-                Ping -->
-                DNS -->
-                HTTP -->
-                HTTPS -->
-                Printer -->
-                DHCP -->
-                FTP -->
-                SSH -->
-                IMAP -->
-                SMTP -->
-                POP3 -->
-                NTP -->
-                Avashi -->
-                Netbios -->
-                LDAP -->
+                Established --> on
+                Ping --> off
+                DNS --> off
+                HTTP --> off
+                HTTPS --> off
+                Printer --> off
+                DHCP --> off
+                FTP --> off
+                SSH --> off
+                IMAP --> off
+                SMTP --> off
+                POP3 --> off
+                NTP --> off
+                Avahi --> off
+                Netbios --> off
+                LDAP --> off
 
 Pour bien comprendre de quoi il s'agit, ces paramètres représentent ce qui seras autaurisé à rentré ou sortir du réseau
 connecté à l'interface. A cet effet les règles INPUT et OUTPUT sont des sous-règles de catégorigorie FORWARD. Par
@@ -196,6 +196,8 @@ Si aucun port n'est spécifié pour le Firewall alors la règle concerne l'ensem
     }
   },
   "FireWall": { # Bloc contenant les configurations du Firewwall par interface
+    "Serveur": {
+      ""
     "eth0": { # Bloc contenant les configurations du Firewall pour l'interface eth0
       "INPUT": { # Pour les INPUT de eth0 0 = DROP | 1 = Config par défaut | 2 = ACCEPT
         "Established": 1, # conntrack ESTABLISHED RELATED
@@ -205,13 +207,13 @@ Si aucun port n'est spécifié pour le Firewall alors la règle concerne l'ensem
         "HTTPS": 1, # tcp 443
         "Printer": 1, # tcp 631 udp 631
         "DHCP": 1, tcp 68 udp 67 68
-        "FTP": 1, tcp 20 21 22 989 990
+        "FTP": 1, tcp 20 21
         "SSH" : 1, tcp 22
         "IMAP": 1, tcp 143 220 993
         "SMTP": 1, tcp 25 587 465
         "POP3": 1, tcp 110 985
         "NTP": 1, udp 123
-        "Avashi": 1, udp 5353
+        "Avahi": 1, udp 5353
         "Netbios": 1, tcp 137 138 139 445
         "LDAP": 1 tcp 389
       },
