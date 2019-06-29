@@ -149,7 +149,7 @@ else:
     print('There is an error in conf.json : FireWall > eth2 > OUTPUT.')
     sys.exit(3)
 
-# ------------------------------------- Création de nos fonctions ----------------------- #
+# ------------------------------- Création de nos fonctions ----------------------- #
 
 def remplacement(fichier, cherche, remplace):
     """Cherche dans 'fichier' une chaine de caratère la valeur 'cherche'
@@ -159,26 +159,6 @@ def remplacement(fichier, cherche, remplace):
     f = open(fichier, 'w')
     f.write(s)
     f.close()
-
-
-def installation(paquet):
-    def install():
-        """Installe le paquet (écrire le nom exacte) donné en argument. Attent la fin de l'installation
-        pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
-        print('{} setup....').format(paquet)
-        with open('freshup.log', 'a') as freshlog:
-            freshlog.write('{} setup :\n\n\n'.format(paquet))
-            commande = 'apt-get install -y {}'.format(paquet)
-            subprocess.Popen(commande, shell=True, stdout=freshlog, stderr=freshlog)
-
-    def main():  # Mise en thread et attente du thread dans def main
-        thread = threading.Thread(target=install)
-        thread.start()
-        thread.join()
-    if __name__ == '__main__':
-        main()
-    print('done.\n')
-
 
 # -------------------------------- Vérifiations Distribution ------------------------------ #
 
@@ -217,20 +197,118 @@ else:
 
 if args.tools:
     print('Tools setup...\n')
-    installation('openssh-server')
-    installation('net-tools')
-    installation('tcpdump')
-    installation('dnsutils')
 
+    try:
+        def installssh():
+            """Installe le paquet . Attent la fin de l'installation
+            pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
+            print('Ssh-server setup....')
+            with open('freshup.log', 'w') as freshlog:
+                freshlog.write('SSH-server setup :\n\n\n')
+                subprocess.Popen('apt-get install -y openssh-server', shell=True, stdout=freshlog, stderr=freshlog)
+
+
+        def main():  # Mise en thread et attente du thread dans def main
+            thread = threading.Thread(target=installssh)
+            thread.start()
+            thread.join()
+
+
+        if __name__ == '__main__':
+            main()
+    except:
+        print('Oops an error hapening during ssh-server setup')
+    print('done.\n')
+
+    try:
+        def installnet():
+            """Installe le paquet . Attent la fin de l'installation
+            pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
+            print('net-tools setup....')
+            with open('freshup.log', 'a') as freshlog:
+                freshlog.write('net-tools setup :\n\n\n')
+                subprocess.Popen('apt-get install -y net-tools', shell=True, stdout=freshlog, stderr=freshlog)
+
+
+        def main():  # Mise en thread et attente du thread dans def main
+            thread = threading.Thread(target=installnet)
+            thread.start()
+            thread.join()
+
+
+        if __name__ == '__main__':
+            main()
+    except:
+        print('Oops an error hapening during DHCP-server setup')
+    print('done.\n')
+
+    try:
+        def installtcpd():
+            """Installe le paquet . Attent la fin de l'installation
+            pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
+            print('tcp-dump setup....')
+            with open('freshup.log', 'a') as freshlog:
+                freshlog.write('tcp-dump setup :\n\n\n')
+                subprocess.Popen('apt-get install -y tcpdump', shell=True, stdout=freshlog, stderr=freshlog)
+
+
+        def main():  # Mise en thread et attente du thread dans def main
+            thread = threading.Thread(target=installtcpd)
+            thread.start()
+            thread.join()
+
+
+        if __name__ == '__main__':
+            main()
+    except:
+        print('Oops an error hapening during tcpdump setup')
+    print('done.\n')
+
+    try:
+        def installdns():
+            """Installe le paquet . Attent la fin de l'installation
+            pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
+            print('Dns-utils setup....')
+            with open('freshup.log', 'a') as freshlog:
+                freshlog.write('Dns-utils setup :\n\n\n')
+                subprocess.Popen('apt-get install -y dnsutils', shell=True, stdout=freshlog, stderr=freshlog)
+
+
+        def main():  # Mise en thread et attente du thread dans def main
+            thread = threading.Thread(target=installdns)
+            thread.start()
+            thread.join()
+
+
+        if __name__ == '__main__':
+            main()
+    except:
+        print('Oops an error hapening during dnsutils setup')
+    print('done.\n')
 # --------------------------- Setup & Configuration du serveur DHCP ----------------------- #
 
 if args.dhcp:
     print('DHCP configuration...')
     try:
-        installation('isc-dhcp-server')
+        def installdhcp():
+            """Installe le paquet . Attent la fin de l'installation
+            pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
+            print('DHCP-server setup....')
+            with open('freshup.log', 'a') as freshlog:
+                freshlog.write('DHCP-server setup :\n\n\n')
+                subprocess.Popen('apt-get install -y isc-dhcp-server', shell=True, stdout=freshlog, stderr=freshlog)
+
+
+        def main():  # Mise en thread et attente du thread dans def main
+            thread = threading.Thread(target=installdhcp)
+            thread.start()
+            thread.join()
+        if __name__ == '__main__':
+            main()
     except:
-        print('Oops an error hapening during settup DHCP-server')
+        print('Oops an error hapening during DHCP-server setup')
         sys.exit(4)
+    print('done.\n')
     try:
     # Configuration de dhcpd.conf
         with open("/etc/dhcp/dhcpd.conf", "a") as dhcpd:
@@ -939,8 +1017,7 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
         if __name__ == '__main__':
             main()
     except:
-        print('Oops an error hapening during Iptables-persistent settup')
-        sys.exit(4)
+        print('Oops an error hapening during Iptables-persistent settup\nBE CARFUL FIREWALL SET IS NOT SAVE\n')
     print('done.\n')
 
 # ----------------------------------- Activation du routage ------------------------------- #
