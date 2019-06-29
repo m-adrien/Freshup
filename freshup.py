@@ -61,6 +61,35 @@ if args.force:
         print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection')
         sys.exit(2)
 
+# ------------------------------------- Création de nos fonctions ----------------------- #
+
+
+def remplacement(fichier, cherche, remplace):
+    """Cherche dans 'fichier' une chaine de caratère la valeur 'cherche'
+    et remplace toutes les chaines de caracteres correspondante par remplace (sensible à la case)"""
+    s = open(fichier).read()
+    s = s.replace(cherche, remplace)
+    f = open(fichier, 'w')
+    f.write(s)
+    f.close()
+
+def installation(paquet,):
+    def install():
+        """Installe le paquet (écrire le nom exacte) donné en argument. Attent la fin de l'installation
+        pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
+
+        print('Ssh {}.\n').format(paquet)
+        with open('freshup.log', 'w') as freshlog:
+            freshlog.write('{} setup :\n\n\n').format(paquet)
+            subprocess.Popen("apt-get install -y {}", shell=True, stdout=freshlog, stderr=freshlog).format(paquet)
+
+    def main():  # Mise en thread et attente du thread dans def main
+        thread = threading.Thread(target=install)
+        thread.start()
+        thread.join()
+    if __name__ == '__main__':
+        main()
+
 # ------------------------------------ Installation des outils ---------------------------- #
 
 if args.tools:
@@ -147,20 +176,22 @@ if args.dhcp:
     # Configuration de dhcpd.conf
     dhcpd = open("/etc/dhcp/dhcpd.conf", "a")
     dhcpd.write('\nautoritative;\n\n')
-    if config['DHCP1']['DHCP'] == '1':
+    if config['INTERFACE1']['Type'] == 'LAN':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                    .format(config['DHCP1']['SUBNET'], config['DHCP1']['NETMASK'], config['DHCP1']['START'],
                    config['DHCP1']['END'], config['DHCP1']['DGATE']))
 
-    if config['DHCP2']['DHCP'] == '1':
+    if config['INTERFACE2']['Type'] == 'LAN':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                    .format(config['DHCP2']['SUBNET'], config['DHCP2']['NETMASK'], config['DHCP2']['START'],
                    config['DHCP2']['END'], config['DHCP2']['DGATE']))
-    if config['DHCP']['DHCP3'] == '1':
+
+    if config['INTERFACE3']['Type'] == 'LAN':
         dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                    .format(config['DHCP3']['SUBNET'], config['DHCP3']['NETMASK'], config['DHCP3']['START'],
                    config['DHCP3']['END'], config['DHCP3']['DGATE']))
     dhcpd.close()
+
     # Configuration de default/isc-dhcp-server
     iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
     if config['DHCP1']['DHCP'] == '1' and config['DHCP2']['DHCP'] == '0' and config['DHCP3']['DHCP'] == '0':
