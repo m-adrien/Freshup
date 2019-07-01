@@ -11,23 +11,25 @@ Pour lancer ce programme vous devez :
 
 Le script Freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide avec
 les outils essentiels à l'administration réseau.
-Par défaut le programme :
-          -Configure trois interfaces
+Le programme :
+          -Renomme les interfaces en ethx
+          -Configure jusqu'a trois interfaces
           -Une route pour chacune d'elles
-          -Active le pare-feu en ne laissant passer que : icmp ssh http https dns et established
-          -Active un NAT en sorite de l'interface n°1
+          -Active et configure le pare-feu de manière avancé
+          -Active un NAT en postrouting en fonction du type d'interface choisie
           -Installe Iptables-persistent
           -Sauvegarde les règles
           -Active le routage
           -Installe DHCP-serveur
-          -Configure DHCP serveur pour fournir deux plages d'adresses
-		        sur les interfaces 2 et 3 avec les passerelles correspondantes
+          -Configure DHCP serveur pour fournir automatiquement les plages d'adresses
           -Installe SSH
           -Installe net-tools
           -Installe dns-utils
           -Installe tcp-dump
+
 Votre serveur sera alors prêt à fonctionner ou y implémenter les derniers réglages.
-Pour une optimisation des réglages veuillez modifier les options dans le fichier conf.ini
+Pour une optimisation des réglages veuillez modifier les options dans le fichier conf.json
+Pour une aide concernant les réglages veuillez consulter conf.help
 
 OPTIONS :
 Le script installant l'ensemble des fonctionnalités permises.
@@ -44,8 +46,6 @@ Utilisez les options suivantes afin d’empêcher l'installation des fonctionali
 
 AUTRES OPTIONS :
 -F = Forcer l'installation sur une autre distribution que Debian
-ATTENTION CE PARAMÈTRE PEUT AVOIR DES EFFETS INATTENDUS !
--R = Redémarrer le système à la fin du programme.
 -h = Help pour Obtenir de l'aide à propos des options.
 
 LOG :
