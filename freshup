@@ -32,7 +32,8 @@ args = parser.parse_args()
 
 # ------------------------------------ Verification de conf.json ------------------------ #
 # Encodage du regex pour determiner ip dans la variable regip
-regip = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}?$")
+regip = re.compile("^(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?).(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?)."
+                   "(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?).(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?)$")
 
 # Création des dictionnaires de conf.json
 a1 = config['FireWall']['Server']
@@ -96,8 +97,8 @@ verifkey2(config['Interfaces']['eth2']['Firewall'])
 
 
 def verifkey3(key):
-    """Vérifie le contenue d'une clé pour que sa valeur soit égale à DMZ, LAN ou NET si non --> exit status = 3"""
-    if (key != 'DMZ' and key != 'LAN' and key != 'NET'):
+    """Vérifie le contenue d'une clé pour que sa valeur soit égale à DMZ, LAN ou WAN si non --> exit status = 3"""
+    if (key != 'DMZ' and key != 'LAN' and key != 'WAN'):
         print('There is an error in conf.json > Interfaces > Type ')
         sys.exit(3)
 
@@ -360,30 +361,30 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p udp --dport 53 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['DNS'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 53 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth0 -p udp --dport 53 -j ACCEPT')
             # HTTP
                 # INPUT
             if ((config['FireWall']['eth0']['INPUT']['HTTP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                config['Interfaces']['eth0']['Type'] == 'WAN' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
                     config['FireWall']['eth0']['INPUT']['HTTP'] != 0):
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 80 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['HTTP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['HTTP'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 80 -j ACCEPT')
             # HTTPS
                 # INPUT
             if ((config['FireWall']['eth0']['INPUT']['HTTPS'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                config['Interfaces']['eth0']['Type'] == 'WAN' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
                     config['FireWall']['eth0']['INPUT']['HTTPS'] != 0):
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 443 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['HTTPS'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['HTTPS'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 443 -j ACCEPT')
             # PRINTER
@@ -409,7 +410,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p udp --dport 68 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['DHCP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['DHCP'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 68 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth0 -p udp --dport 67 -j ACCEPT')
@@ -417,13 +418,13 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # FTP
                 # INPUT
             if ((config['FireWall']['eth0']['INPUT']['FTP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'NET' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
+                config['Interfaces']['eth0']['Type'] == 'WAN' or config['Interfaces']['eth0']['Type'] == 'DMZ') and
                     config['FireWall']['eth0']['INPUT']['FTP'] != 0):
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 20 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 21 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['FTP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['FTP'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 20 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 21 -j ACCEPT')
@@ -435,7 +436,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 22 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['SSH'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['SSH'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 22 -j ACCEPT')
             # IMAP
@@ -446,7 +447,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 993 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['DNS'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 143 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 220 -j ACCEPT')
@@ -459,7 +460,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 465 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['SMTP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['SMTP'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 25 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 587 -j ACCEPT')
@@ -471,7 +472,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 985 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['POP3'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['POP3'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 110 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 985 -j ACCEPT')
@@ -483,7 +484,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth0 -p udp --dport 123 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['NTP'] == 2 or
-                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'NET') and
+                config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['Type'] == 'WAN') and
                 config['FireWall']['eth0']['OUTPUT']['NTP'] != 0):
                 os.system('iptables -A FORWARD -o eth0 -p udp --dport 123 -j ACCEPT')
             # AVAHI
@@ -547,30 +548,30 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p udp --dport 53 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['DNS'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 53 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth1 -p udp --dport 53 -j ACCEPT')
             # HTTP
             # INPUT
             if ((config['FireWall']['eth1']['INPUT']['HTTP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                 config['Interfaces']['eth1']['Type'] == 'WAN' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
                     config['FireWall']['eth1']['INPUT']['HTTP'] != 0):
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 80 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['HTTP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['HTTP'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 80 -j ACCEPT')
             # HTTPS
             # INPUT
             if ((config['FireWall']['eth1']['INPUT']['HTTPS'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                 config['Interfaces']['eth1']['Type'] == 'WAN' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
                     config['FireWall']['eth1']['INPUT']['HTTPS'] != 0):
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 443 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['HTTPS'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['HTTPS'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 443 -j ACCEPT')
             # PRINTER
@@ -596,7 +597,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p udp --dport 68 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['DHCP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['DHCP'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 68 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth1 -p udp --dport 67 -j ACCEPT')
@@ -604,13 +605,13 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # FTP
             # INPUT
             if ((config['FireWall']['eth1']['INPUT']['FTP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'NET' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
+                 config['Interfaces']['eth1']['Type'] == 'WAN' or config['Interfaces']['eth1']['Type'] == 'DMZ') and
                     config['FireWall']['eth1']['INPUT']['FTP'] != 0):
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 20 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 21 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['FTP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['FTP'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 20 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 21 -j ACCEPT')
@@ -622,7 +623,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 22 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['SSH'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['SSH'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 22 -j ACCEPT')
             # IMAP
@@ -633,7 +634,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 993 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['DNS'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 143 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 220 -j ACCEPT')
@@ -646,7 +647,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 465 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['SMTP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['SMTP'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 25 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 587 -j ACCEPT')
@@ -658,7 +659,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 985 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['POP3'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['POP3'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 110 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 985 -j ACCEPT')
@@ -670,7 +671,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth1 -p udp --dport 123 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['NTP'] == 2 or
-                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'NET') and
+                 config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['Type'] == 'WAN') and
                     config['FireWall']['eth1']['OUTPUT']['NTP'] != 0):
                 os.system('iptables -A FORWARD -o eth1 -p udp --dport 123 -j ACCEPT')
             # AVAHI
@@ -734,30 +735,30 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p udp --dport 53 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['DNS'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 53 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth2 -p udp --dport 53 -j ACCEPT')
             # HTTP
             # INPUT
             if ((config['FireWall']['eth2']['INPUT']['HTTP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                 config['Interfaces']['eth2']['Type'] == 'WAN' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
                     config['FireWall']['eth2']['INPUT']['HTTP'] != 0):
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 80 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['HTTP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['HTTP'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 80 -j ACCEPT')
             # HTTPS
             # INPUT
             if ((config['FireWall']['eth2']['INPUT']['HTTPS'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                 config['Interfaces']['eth2']['Type'] == 'WAN' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
                     config['FireWall']['eth2']['INPUT']['HTTPS'] != 0):
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 443 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['HTTPS'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['HTTPS'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 443 -j ACCEPT')
             # PRINTER
@@ -783,7 +784,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p udp --dport 68 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['DHCP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['DHCP'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 68 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth2 -p udp --dport 67 -j ACCEPT')
@@ -791,13 +792,13 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # FTP
             # INPUT
             if ((config['FireWall']['eth2']['INPUT']['FTP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'NET' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
+                 config['Interfaces']['eth2']['Type'] == 'WAN' or config['Interfaces']['eth2']['Type'] == 'DMZ') and
                     config['FireWall']['eth2']['INPUT']['FTP'] != 0):
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 20 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 21 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['FTP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['FTP'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 20 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 21 -j ACCEPT')
@@ -809,7 +810,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 22 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['SSH'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['SSH'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 22 -j ACCEPT')
             # IMAP
@@ -820,7 +821,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 993 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['DNS'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 143 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 220 -j ACCEPT')
@@ -833,7 +834,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 465 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['SMTP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['SMTP'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 25 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 587 -j ACCEPT')
@@ -845,7 +846,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 985 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['POP3'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['POP3'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 110 -j ACCEPT')
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 985 -j ACCEPT')
@@ -857,7 +858,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -i eth2 -p udp --dport 123 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['NTP'] == 2 or
-                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'NET') and
+                 config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['Type'] == 'WAN') and
                     config['FireWall']['eth2']['OUTPUT']['NTP'] != 0):
                 os.system('iptables -A FORWARD -o eth2 -p udp --dport 123 -j ACCEPT')
             # AVAHI
@@ -907,11 +908,11 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
 
 if args.nat:
     print('NAT configuration...\n')
-    if config['Interfaces']['eth0']['Type'] == 'NET':
+    if config['Interfaces']['eth0']['Type'] == 'WAN':
         os.system('iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE')
-    if config['Interfaces']['eth1']['Type'] == 'NET':
+    if config['Interfaces']['eth1']['Type'] == 'WAN':
         os.system('iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE')
-    if config['Interfaces']['eth2']['Type'] == 'NET':
+    if config['Interfaces']['eth2']['Type'] == 'WAN':
         os.system('iptables -t nat -A POSTROUTING -o eth2 -j MASQUERADE')
     print('done.\n')
 
