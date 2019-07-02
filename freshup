@@ -220,19 +220,19 @@ if args.dhcp:
         # Configuration de dhcpd.conf
             with open("/etc/dhcp/dhcpd.conf", "a") as dhcpd:
                 dhcpd.write('\nautoritative;\n\n')
-                if config['Interfaces']['eth0']['Type'] == 'LAN' or config['DHCP']['eth0']['Forced'] == 1:
+                if config['Interfaces']['eth0']['Type'] == 'LAN' or config['Interfaces']['eth0']['ForceDHCP'] == 1:
                     dhcpeth0 = 1 # Création de la variable pour la suite
                     dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                                 .format(config['DHCP']['eth0']['SubNet'], config['DHCP']['eth0']['NetMask'],
                                         config['DHCP']['eth0']['Start'], config['DHCP']['eth0']['End'],
                                         config['DHCP']['eth0']['Dgate']))
-                if config['Interfaces']['eth1']['Type'] == 'LAN' or config['DHCP']['eth1']['Forced'] == 1:
+                if config['Interfaces']['eth1']['Type'] == 'LAN' or config['Interfaces']['eth1']['ForceDHCP'] == 1:
                     dhcpeth1 = 1 # Création de la variable pour la suite
                     dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                                 .format(config['DHCP']['eth1']['SubNet'], config['DHCP']['eth1']['NetMask'],
                                         config['DHCP']['eth1']['Start'], config['DHCP']['eth1']['End'],
                                         config['DHCP']['eth1']['Dgate']))
-                if config['Interfaces']['eth2']['Type'] == 'LAN' or config['DHCP']['eth2']['Forced'] == 1:
+                if config['Interfaces']['eth2']['Type'] == 'LAN' or config['Interfaces']['eth2']['ForceDHCP'] == 1:
                     dhcpeth2 = 1 # Création de la variable pour la suite
                     dhcpd.write("subnet {} netmask {} {{\n  range {} {};\n  option routers {};\n}}\n\n"
                                 .format(config['DHCP']['eth2']['SubNet'], config['DHCP']['eth2']['NetMask'],
@@ -416,7 +416,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 22 -j ACCEPT')
             # IMAP
                 # INPUT
-            if config['FireWall']['eth0']['INPUT']['IMAP'] != 0:
+            if config['FireWall']['eth0']['INPUT']['IMAP'] == 2:
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 143 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 220 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 993 -j ACCEPT')
@@ -429,7 +429,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 993 -j ACCEPT')
             # SMTP
                 # INPUT
-            if config['FireWall']['eth0']['INPUT']['SMTP'] != 0:
+            if config['FireWall']['eth0']['INPUT']['SMTP'] == 2:
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 25 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 587 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 465 -j ACCEPT')
@@ -442,7 +442,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 465 -j ACCEPT')
             # POP3
                 # INPUT
-            if config['FireWall']['eth0']['INPUT']['POP3'] != 0:
+            if config['FireWall']['eth0']['INPUT']['POP3'] == 2:
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 110 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p tcp --dport 985 -j ACCEPT')
                 # OUTPUT
@@ -603,7 +603,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 22 -j ACCEPT')
             # IMAP
             # INPUT
-            if config['FireWall']['eth1']['INPUT']['IMAP'] != 0:
+            if config['FireWall']['eth1']['INPUT']['IMAP'] == 2:
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 143 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 220 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 993 -j ACCEPT')
@@ -616,7 +616,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 993 -j ACCEPT')
             # SMTP
             # INPUT
-            if config['FireWall']['eth1']['INPUT']['SMTP'] != 0:
+            if config['FireWall']['eth1']['INPUT']['SMTP'] == 2:
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 25 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 587 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 465 -j ACCEPT')
@@ -629,7 +629,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth1 -p tcp --dport 465 -j ACCEPT')
             # POP3
             # INPUT
-            if config['FireWall']['eth1']['INPUT']['POP3'] != 0:
+            if config['FireWall']['eth1']['INPUT']['POP3'] == 2:
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 110 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p tcp --dport 985 -j ACCEPT')
                 # OUTPUT
@@ -790,7 +790,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 22 -j ACCEPT')
             # IMAP
             # INPUT
-            if config['FireWall']['eth2']['INPUT']['IMAP'] != 0:
+            if config['FireWall']['eth2']['INPUT']['IMAP'] == 2:
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 143 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 220 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 993 -j ACCEPT')
@@ -803,7 +803,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 993 -j ACCEPT')
             # SMTP
             # INPUT
-            if config['FireWall']['eth2']['INPUT']['SMTP'] != 0:
+            if config['FireWall']['eth2']['INPUT']['SMTP'] == 2:
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 25 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 587 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 465 -j ACCEPT')
@@ -816,7 +816,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth2 -p tcp --dport 465 -j ACCEPT')
             # POP3
             # INPUT
-            if config['FireWall']['eth2']['INPUT']['POP3'] != 0:
+            if config['FireWall']['eth2']['INPUT']['POP3'] == 2:
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 110 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p tcp --dport 985 -j ACCEPT')
                 # OUTPUT

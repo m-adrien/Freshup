@@ -35,9 +35,9 @@ NAT en postrouting --> off
 >DHCP --> on
 >FTP --> off
 >SSH --> on
->IMAP --> on
->SMTP --> on
->POP3 --> on
+>IMAP --> off
+>SMTP --> off
+>POP3 --> off
 >NTP --> on
 >Avahi --> off
 >Netbios --> on
@@ -160,3 +160,101 @@ Si aucun port n'est spécifié pour le Firewall alors la règle concerne l'ensem
 
 Voici un exemple du fichier de configuration. Les informations se présentent sous forme d'une arborescence.
 Si vous voulez visualiser ce fichier sous forme graphique : collé le contenue de conf.json dans un des nombreux outils dédiés à cela, comme par exemple : http://jsonviewer.stack.hu/
+{
+  "Interfaces": {
+    "eth0": {                       Parramètre généraux de l'interface eth0
+      "Activated": 1,               1 = Active la configuration de la carte 0 = Désactive
+      "IP": "192.168.0.1",          Adresse ip de l'interface
+      "NetMask": "255.255.255.0",   Masque de sous-réseau de l'interface
+      "GateWay": "192.168.3.254",   Passerelle de réseau
+      "Type": "LAN",                Type de l'interface (voir ci-dessus)
+      "Firewall": 1,                1 = Active le Firewall les règles seront en fonction du type choisit 0 = Désactive la configuration du Firewall sur le réseau
+      "ForceDHCP": 0                1 = Force l'installation et la configuration du DHCP malgrés le type 0= Ne force rien : sera installé selon le type d'interface
+    },
+    "eth1": {
+    ...
+    },
+    "eth2": {
+    ...
+    }
+  },
+  "DHCP": {
+    "eth0": {
+      "SubNet": "192.168.0.0",
+      "NetMask": "255.255.255.0",
+      "Start": "192.168.0.2",
+      "End": "192.168.0.253",
+      "Dgate": "192.168.0.254"
+    },
+    "eth1": {
+    ...
+    },
+    "eth2": {
+    ...
+    }
+  },
+  "FireWall": {
+    "Server": {
+      "Established": 1,
+      "Ping": 1,
+      "SSH": 1,
+      "DHCP": 0,
+      "DNS": 0,
+      "NTP": 0
+    },
+    "eth0": {
+      "INPUT": {
+        "Established": 1,
+        "Ping": 1,
+        "DNS": 1,
+        "HTTP": 1,
+        "HTTPS": 1,
+        "Printer": 1,
+        "DHCP": 1,
+        "FTP": 1,
+        "SSH" : 1,
+        "IMAP": 1,
+        "SMTP": 1,
+        "POP3": 1,
+        "NTP": 1,
+        "Avahi": 1,
+        "Netbios": 1,
+        "LDAP": 1
+      },
+      "OUTPUT": {
+        "Established": 1,
+        "Ping": 1,
+        "DNS": 1,
+        "HTTP": 1,
+        "HTTPS": 1,
+        "Printer": 1,
+        "DHCP": 1,
+        "FTP": 1,
+        "SSH" : 1,
+        "IMAP": 1,
+        "SMTP": 1,
+        "POP3": 1,
+        "NTP": 1,
+        "Avahi": 1,
+        "Netbios": 1,
+        "LDAP": 1
+      }
+    },
+    "eth1": {
+      "INPUT": {
+        ...
+      },
+      "OUTPUT": {
+        ...
+      }
+    },
+    "eth2": {
+      "INPUT": {
+        ...
+      },
+      "OUTPUT": {
+        ...
+      }
+    }
+  }
+}
