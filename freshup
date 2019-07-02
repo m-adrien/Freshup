@@ -152,7 +152,7 @@ def installation(paquet):
         pour continuer le programme. Ecrit dans le log et dans la console l'installation du paquet"""
         print('{} setup....'.format(paquet))
         try:
-            os.system('apt-get install -y {}'.format(paquet))
+            os.system('apt-get install -y -qq {}'.format(paquet))
         except:
             print('An error happening during {} settup'.format(paquet))
             raise ValueError(BaseException)
@@ -206,16 +206,16 @@ if args.tools:
     print('done.\n')
 
 # -------------------------------------- Setup & Configuration du serveur DHCP -------------------------------------- #
-global dfail
+dfail = None
 if args.dhcp:
     print('DHCP configuration...')
     try:
         installation('isc-dhcp-server')
-    except:
-        dfail = False
+    except Exception as e:
         print('Oops an error hapening during DHCP-server setup DHCP conf files will be not write')
+        dfail = e
     print('done.\n')
-    if dfail is not False:
+    if not dfail:
         try:
         # Configuration de dhcpd.conf
             with open("/etc/dhcp/dhcpd.conf", "a") as dhcpd:
