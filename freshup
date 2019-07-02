@@ -921,6 +921,10 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
         print('Oops an error hapening during Firewall policy configuration')
         sys.exit(6)
     print('done.')
+    print('Saving Iptables...')
+    os.system('iptables-save > /etc/iptables/rules.v4')
+    time.sleep(1)
+    print('Rules saved in /etc/iptables/rules.v4')
 # ---------------------------------------------- Activation du routage ---------------------------------------------- #
 if args.route:
     try:
@@ -971,10 +975,10 @@ if args.interfaces:
             interfaces.write("#Iface 2\nauto eth1\niface eth1 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
                              .format(config['Interfaces']['eth1']['IP'], config['Interfaces']['eth1']['NetMask'],
                                      config['Interfaces']['eth1']['GateWay']))
-        # Insertion de la conf de eth0
+        # Insertion de la conf de eth2
         if config['Interfaces']['eth2']['Activated'] == 1:
             interfaces.write("#Iface 3\nauto eth2\niface eth2 inet static\naddress {}\nnetmask {}\ngateway {}\n\n"
-                             .format(config['Interfaces']['eth2']['IP'], config['Interfaces']['eth3']['NetMask'],
+                             .format(config['Interfaces']['eth2']['IP'], config['Interfaces']['eth2']['NetMask'],
                                      config['Interfaces']['eth2']['GateWay']))
         # Fermeture du fichier
         interfaces.close()
