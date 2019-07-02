@@ -32,8 +32,7 @@ args = parser.parse_args()
 
 # -------------------------------------------- Verification de conf.json -------------------------------------------- #
 # Encodage du regex pour determiner ip dans la variable regip
-regip = re.compile("^(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?).(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?)."
-                   "(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?).(25[0–5]|2[0–4][0–9]|[01]?[0–9][0–9]?)$")
+regip = re.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
 # Création des dictionnaires de conf.json
 a1 = config['FireWall']['Server']
