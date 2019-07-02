@@ -208,6 +208,9 @@ if args.tools:
 # -------------------------------------- Setup & Configuration du serveur DHCP -------------------------------------- #
 dfail = None
 if args.dhcp:
+    dhcpeth0 = None
+    dhcpeth1 = None
+    dhcpeth2 = None
     print('DHCP configuration...')
     try:
         installation('isc-dhcp-server')
@@ -239,7 +242,7 @@ if args.dhcp:
                                         config['DHCP']['eth2']['Start'], config['DHCP']['eth2']['End'],
                                         config['DHCP']['eth2']['Dgate']))
         except:
-            print('Oops an error hapening during DHCP configuration')
+            print('Oops an error hapening during DHCP configuration (1)')
             sys.exit(5)
         # Configuration de default/isc-dhcp-server
         try:
@@ -259,7 +262,7 @@ if args.dhcp:
             if dhcpeth0 == 1 and dhcpeth1 == 1 and dhcpeth2 == 1:
                 remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0 eth1 eth2"')
         except:
-            print('Oops an error hapening during DHCP configuration')
+            print('Oops an error hapening during DHCP configuration (2)')
             sys.exit(5)
         print('done.\n')
 
@@ -326,7 +329,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # Ping icmp
             if config['FireWall']['eth0']['INPUT']['Ping'] == 2:
                 os.system('iptables -A FORWARD -i eth0 -p icmp -j ACCEPT')
-            if config['FireWall']['eth0']['OUPUT']['Ping'] == 2:
+            if config['FireWall']['eth0']['OUTPUT']['Ping'] == 2:
                 os.system('iptables -A FORWARD -o eth0 -p icmp -j ACCEPT')
             # DNS
                 # INPUT
@@ -513,7 +516,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # Ping icmp
             if config['FireWall']['eth1']['INPUT']['Ping'] == 2:
                 os.system('iptables -A FORWARD -i eth1 -p icmp -j ACCEPT')
-            if config['FireWall']['eth1']['OUPUT']['Ping'] == 2:
+            if config['FireWall']['eth1']['OUTPUT']['Ping'] == 2:
                 os.system('iptables -A FORWARD -o eth1 -p icmp -j ACCEPT')
             # DNS
             # INPUT
@@ -700,7 +703,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # Ping icmp
             if config['FireWall']['eth2']['INPUT']['Ping'] == 2:
                 os.system('iptables -A FORWARD -i eth2 -p icmp -j ACCEPT')
-            if config['FireWall']['eth2']['OUPUT']['Ping'] == 2:
+            if config['FireWall']['eth2']['OUTPUT']['Ping'] == 2:
                 os.system('iptables -A FORWARD -o eth2 -p icmp -j ACCEPT')
             # DNS
             # INPUT
