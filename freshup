@@ -896,7 +896,7 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
 
             os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
             os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-            os.system('apt-get install -y -qq iptaiptables-persistent')
+            os.system('apt-get install -y -qq iptables-persistent')
 
         def main():  # Attente de la fin d'installation mis en thread par la fonction main
             thread = threading.Thread(target=iptables_install)
@@ -953,6 +953,7 @@ if args.interfaces:
     print('Renaming in ethx...')
     try:
         remplacement('/etc/default/grub', 'GRUB_CMDLINE_LINUX=""', 'GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"')
+        os.system('grub-mkconfig -o /boot/grub/grub.cfg')
     except:
         print('Oops an error hapening during renaming in ethX interfaces')
         sys.exit(7)
