@@ -44,8 +44,8 @@ pas installé et la configuration de iptables non sauvegardée
 
 #### AUTRES OPTIONS :
 >-F = --force (force l'installation sur une autre distribution que Debian)
->-R = --Reboot (Redémarre la machine à la fin du programme)
->-h = --Help (pour obtenir de l'aide à propos des options)
+>-R = --restart (Redémarre la machine à la fin du programme)
+>-h = --help (pour obtenir de l'aide à propos des options)
 
 
 ### EXIT STATUS :
