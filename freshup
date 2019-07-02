@@ -273,17 +273,6 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                           config['Interfaces']['eth2']['Firewall'] == 0):
     print('Firewall configuration ...\n')
 
-    # On met en DROP toutes les policy ipv4 et ipv6
-    try:
-        os.system('iptables -P INPUT DROP')
-        os.system('iptables -P OUTPUT DROP')
-        os.system('iptables -P FORWARD DROP')
-        os.system('ip6tables -P INPUT DROP')
-        os.system('ip6tables -P OUTPUT DROP')
-        os.system('ip6tables -P FORWARD DROP')
-    except:
-        print('Oops an error hapening during Firewall configuration')
-        sys.exit(6)
     # On autorise en IPv4 les ports selon la config :
     # ----------------------------------------------------------------- #
     # ------------------ CONFIGURATION serveur ------------------------ #
@@ -502,7 +491,7 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 os.system('iptables -A FORWARD -o eth0 -p tcp --dport 389 -j ACCEPT')
         except:
             print('Oops an error hapening during Firewall eth0 configuration')
-        sys.exit(6)
+            sys.exit(6)
     # ----------------------------------------------------------------- #
     # ------------------ CONFIGURATION eth1 --------------------------- #
     # ----------------------------------------------------------------- #
@@ -919,7 +908,19 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
         print('Oops an error hapening during Iptables-persistent settup\nBE CARFUL FIREWALL SET IS NOT SAVE\n')
         sys.exit(4)
     print('done.\n')
-
+    print('Firewall policy Dropping...')
+    # On met en DROP toutes les policy ipv4 et ipv6
+    try:
+        os.system('iptables -P INPUT DROP')
+        os.system('iptables -P OUTPUT DROP')
+        os.system('iptables -P FORWARD DROP')
+        os.system('ip6tables -P INPUT DROP')
+        os.system('ip6tables -P OUTPUT DROP')
+        os.system('ip6tables -P FORWARD DROP')
+    except:
+        print('Oops an error hapening during Firewall policy configuration')
+        sys.exit(6)
+    print('done.')
 # ---------------------------------------------- Activation du routage ---------------------------------------------- #
 if args.route:
     try:
