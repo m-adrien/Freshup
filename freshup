@@ -896,7 +896,7 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
 
             os.system('echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections')
             os.system('echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections')
-            os.system('apt-get install -y iptables-persistent')
+            os.system('apt-get install -y -qq iptaiptables-persistent')
 
         def main():  # Attente de la fin d'installation mis en thread par la fonction main
             thread = threading.Thread(target=iptables_install)
@@ -928,17 +928,14 @@ if args.nat or (args.firewall and not (config['Interfaces']['eth0']['Firewall'] 
 # ---------------------------------------------- Activation du routage ---------------------------------------------- #
 if args.route:
     try:
-        sysctl = open('/etc/sysctl.conf', 'r')
-        if ('#net.ipv4.ip_forward=1' or '# net.ipv4.ip_forward=1') in sysctl:
-            if '# net.ipv4.ip_forward=1' in sysctl:
+        if (('#net.ipv4.ip_forward=1' in open('/etc/sysctl.conf').read())
+                or ('# net.ipv4.ip_forward=1' in open('/etc/sysctl.conf').read())):
+            if '# net.ipv4.ip_forward=1' in open('/etc/sysctl.conf').read():
                 remplacement('/etc/sysctl.conf', '# net.ipv4.ip_forward=1', 'net.ipv4.ip_forward=1')
-                sysctl.close()
-            elif '#net.ipv4.ip_forward=1' in sysctl:
+            elif '#net.ipv4.ip_forward=1' in open('/etc/sysctl.conf').read():
                 remplacement('/etc/sysctl.conf', '#net.ipv4.ip_forward=1', 'net.ipv4.ip_forward=1')
-                sysctl.close()
-        elif 'net.ipv4.ip_forward=1' in sysctl:
+        elif 'net.ipv4.ip_forward=1' in open('/etc/sysctl.conf').read():
             print('Sysctl.conf already configured for forwarding')
-            sysctl.close()
         else:
             print('No line with ipv4 forwarding configuration found in sysctl.conf : '
                   'adding a new line at the end of the file')
@@ -990,7 +987,7 @@ if args.interfaces:
 
 # ---------------------------------------------------- Rdémarrage ---------------------------------------------------- #
 print('Thank you for using Fresh-up on your server !\nMerci d\'avoir utilisé Fresh-up sur votre serveur !\n')
-if args.restart():
+if not args.restart:
     print('Votre serveur va redémarer dans :')
     i = 4
     while i > 1:

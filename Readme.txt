@@ -1,10 +1,13 @@
 # FRESH UP
+Merci d'utiliser Freshup, ce fichier ainsi que conf.help sont écrit en Markdown.
+Pour plus de confort et de lisibilité, n'hésitez pas à coller le contenu de ces fichiers dans un outil dédié.
+
 
 Pour lancer ce programme vous devez :
 >1) Avoir les droits root
 >2) Avoir une connexion internet fonctionnelle
 >3) Avoir dans le même dossier freshup et conf.json
->4) Vous placer dans ce dossier avec la commande "cd /chemin/vers/votre/fichier/"
+>4) Vous placer dans ce dossier avec la commande "cd /chemin/vers/votre/fichier/" (sans les guillemets)
 >5) Exécuter la commande suivante : "python3 freshup" (sans les guillemets)
 
 Le script Freshup permet de configurer un serveur DEBIAN fraichement installé de manière simple et rapide avec les outils essentiels à l'administration réseau.
@@ -39,8 +42,7 @@ Utilisez les options suivantes afin d’empêcher l'installation des fonctionnal
 >-r = --route
 >-t = --tools (net-tools, dnsutils, tcpdump, SSH ne seront pas installé)
 
-Si -f et -n sont activées de concert iptables persistent ne sera
-pas installé et la configuration de iptables non sauvegardée
+Si -f et -n sont activées de concert iptables persistent ne sera pas installé et la configuration de iptables non sauvegardée.
 
 #### AUTRES OPTIONS :
 >-F = --force (force l'installation sur une autre distribution que Debian)
