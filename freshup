@@ -83,10 +83,13 @@ def verifkey2(key):
 
 verifkey2(config['Interfaces']['eth0']['Activated'])
 verifkey2(config['Interfaces']['eth0']['Firewall'])
+verifkey2(config['Interfaces']['eth0']['ForceDHCP'])
 verifkey2(config['Interfaces']['eth1']['Activated'])
 verifkey2(config['Interfaces']['eth1']['Firewall'])
+verifkey2(config['Interfaces']['eth1']['ForceDHCP'])
 verifkey2(config['Interfaces']['eth2']['Activated'])
 verifkey2(config['Interfaces']['eth2']['Firewall'])
+verifkey2(config['Interfaces']['eth2']['ForceDHCP'])
 
 def verifkey3(key):
     """Vérifie le contenue d'une clé pour que sa valeur soit égale à DMZ, LAN ou WAN si non --> exit status = 3"""
@@ -135,6 +138,7 @@ else:
     print('There is an error in conf.json : FireWall > eth2 > OUTPUT.')
     sys.exit(3)
 
+
 # -------------------------------------------- Création de nos fonctions -------------------------------------------- #
 def remplacement(fichier, cherche, remplace):
     """Cherche dans 'fichier' une chaine de caratère la valeur 'cherche'
@@ -166,6 +170,7 @@ def installation(paquet):
     if __name__ == '__main__':
         main()
 
+
 # -------------------------------------------- Vérifiations Distribution -------------------------------------------- #
 if args.force:
     print('Verification...')
@@ -177,6 +182,7 @@ if args.force:
         print('Vous n\'êtes pas sur une distribution Debian\nYour are not on a Debian Distribution\n')
         sys.exit(1)
     print('done.\n')
+
 
 # --------------------------------------------- Vérifiations Connection --------------------------------------------- #
 child = subprocess.Popen("ping 8.8.8.8 -c 4", shell=True, stdout=subprocess.PIPE)
@@ -196,6 +202,7 @@ else:
     print('There is some troubles... can\'t ping 8.8.8.8\nPlease check your connection\n')
     sys.exit(2)
 
+
 # --------------------------------------------- Installation des outils --------------------------------------------- #
 if args.tools:
     print('Tools setup...\n')
@@ -206,8 +213,8 @@ if args.tools:
     print('done.\n')
 
 # -------------------------------------- Setup & Configuration du serveur DHCP -------------------------------------- #
-dfail = None
 if args.dhcp:
+    dfail = None
     dhcpeth0 = None
     dhcpeth1 = None
     dhcpeth2 = None
@@ -246,7 +253,6 @@ if args.dhcp:
             sys.exit(5)
         # Configuration de default/isc-dhcp-server
         try:
-            iscdhcpd = open("/etc/default/isc-dhcp-server", "w")  # Config de l'écoute en fnct des paramètres
             if dhcpeth0 == 1 and dhcpeth1 != 1 and dhcpeth2 != 1:
                 remplacement('/etc/default/isc-dhcp-server', 'INTERFACESv4=""', 'INTERFACESv4="eth0"')
             if dhcpeth0 != 1 and dhcpeth1 == 1 and dhcpeth2 != 1:
@@ -266,13 +272,13 @@ if args.dhcp:
             sys.exit(5)
         print('done.\n')
 
+
 # --------------------------------------------- Configuration FIREWALL --------------------------------------------- #
 # En plus de l'argument -r on ne configure rien si toutes les options FIrewall sont à zéro
 if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                           config['Interfaces']['eth1']['Firewall'] == 0 and
                           config['Interfaces']['eth2']['Firewall'] == 0):
     print('Firewall configuration ...\n')
-
     # On autorise en IPv4 les ports selon la config :
     # ----------------------------------------------------------------- #
     # ------------------ CONFIGURATION serveur ------------------------ #

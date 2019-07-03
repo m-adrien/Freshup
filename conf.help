@@ -7,8 +7,11 @@ __1) Veuillez respecter la syntaxe JSON__
 __2) Les interfaces seront renommé en eth0 eth1 et eth2.__
 
 __3) Il y'a trois grands chapitres dans ce fichier :__
+        -Interfaces
+        -DHCP
+        -Firewall
 
-##Interfaces
+## Interfaces
 Vous pourrez configurer les informations principales concernant chaque interface.
 
 DHCP : Dans chaque onglet portant le nom de l'interface vous pourrez modifier les règles du service DHCP
@@ -104,7 +107,7 @@ NAT en postrouting --> on
 >LDAP --> off
 
 
-####TYPE = DMZ
+#### TYPE = DMZ
 Destiné à rejoindre une zone démilitarisée de notre réseau à administrer.
 
 DHCP --> off
@@ -162,7 +165,7 @@ Voici un exemple du fichier de configuration. Les informations se présentent so
 Si vous voulez visualiser ce fichier sous forme graphique : collé le contenue de conf.json dans un des nombreux outils dédiés à cela, comme par exemple : http://jsonviewer.stack.hu/
 {
   "Interfaces": {
-    "eth0": {                       Parramètre généraux de l'interface eth0
+    "eth0": {                       Parramètres généraux de l'interface eth0
       "Activated": 1,               1 = Active la configuration de la carte 0 = Désactive
       "IP": "192.168.0.1",          Adresse ip de l'interface
       "NetMask": "255.255.255.0",   Masque de sous-réseau de l'interface
@@ -171,30 +174,30 @@ Si vous voulez visualiser ce fichier sous forme graphique : collé le contenue d
       "Firewall": 1,                1 = Active le Firewall les règles seront en fonction du type choisit 0 = Désactive la configuration du Firewall sur le réseau
       "ForceDHCP": 0                1 = Force l'installation et la configuration du DHCP malgrés le type 0= Ne force rien : sera installé selon le type d'interface
     },
-    "eth1": {
+    "eth1": {                       Parramètres généraux de l'interface eth0
     ...
     },
-    "eth2": {
+    "eth2": {                       Parramètres généraux de l'interface eth0
     ...
     }
   },
   "DHCP": {
-    "eth0": {
-      "SubNet": "192.168.0.0",
-      "NetMask": "255.255.255.0",
-      "Start": "192.168.0.2",
-      "End": "192.168.0.253",
-      "Dgate": "192.168.0.254"
+    "eth0": {                       Parramètres DHCP de l'interface eth0
+      "SubNet": "192.168.0.0",      Réseau de distribution d'adresse
+      "NetMask": "255.255.255.0",   Masque de soius réseau correspondant
+      "Start": "192.168.0.2",       Plage de distibution des adresses IP première adresse
+      "End": "192.168.0.253",       Plage de distibution des adresses IP derniière adresse
+      "Dgate": "192.168.0.254"      Configuration de passerelle sur les clients
     },
-    "eth1": {
+    "eth1": {                       Parramètre DHCP de l'interface eth1
     ...
     },
-    "eth2": {
+    "eth2": {                       Parramètre DHCP de l'interface eth2
     ...
     }
   },
   "FireWall": {
-    "Server": {
+    "Server": {                     Parramètres Firewall du serveur lui même
       "Established": 1,
       "Ping": 1,
       "SSH": 1,
