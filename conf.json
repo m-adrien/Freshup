@@ -4,26 +4,26 @@
       "Activated": 1,
       "IP": "192.168.0.1",
       "NetMask": "255.255.255.0",
-      "GateWay": "192.168.3.254",
-      "Type": "LAN",
+      "GateWay": "192.168.0.254",
+      "Type": "WAN",
       "Firewall": 1,
       "ForceDHCP": 0
     },
     "eth1": {
       "Activated": 1,
-      "IP": "192.168.1.1",
+      "IP": "192.168.1.254",
       "NetMask": "255.255.255.0",
-      "GateWay": "192.168.3.254",
-      "Type": "DMZ",
+      "GateWay": "192.168.1.254",
+      "Type": "LAN",
       "Firewall": 1,
       "ForceDHCP": 0
     },
     "eth2": {
       "Activated": 1,
-      "IP": "192.168.2.1",
+      "IP": "192.168.2.254",
       "NetMask": "255.255.255.0",
-      "GateWay": "192.168.3.254",
-      "Type": "WAN",
+      "GateWay": "192.168.2.254",
+      "Type": "LAN",
       "Firewall": 1,
       "ForceDHCP": 0
     }
