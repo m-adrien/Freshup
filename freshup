@@ -301,8 +301,6 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             os.system('iptables -A OUTPUT -p udp --dport 67 -j ACCEPT')
             os.system('iptables -A OUTPUT -p udp --dport 68 -j ACCEPT')
         if config['FireWall']['Server']['DNS'] != 0:
-            os.system('iptables -A INPUT -p tcp --dport 53 -j ACCEPT')
-            os.system('iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT')
             os.system('iptables -A INPUT -p udp --dport 53 -j ACCEPT')
             os.system('iptables -A OUTPUT -p udp --dport 53 -j ACCEPT')
         if config['FireWall']['Server']['NTP'] != 0:
@@ -330,7 +328,6 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
                 # INPUT
             if ((config['FireWall']['eth0']['INPUT']['DNS'] == 2 or
                 config['Interfaces']['eth0']['Type'] == 'LAN') and config['FireWall']['eth0']['INPUT']['DNS'] != 0):
-                os.system('iptables -A FORWARD -i eth0 -p tcp --dport 53 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth0 -p udp --dport 53 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth0']['OUTPUT']['DNS'] == 2 or
@@ -517,7 +514,6 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # INPUT
             if ((config['FireWall']['eth1']['INPUT']['DNS'] == 2 or
                  config['Interfaces']['eth1']['Type'] == 'LAN') and config['FireWall']['eth1']['INPUT']['DNS'] != 0):
-                os.system('iptables -A FORWARD -i eth1 -p tcp --dport 53 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth1 -p udp --dport 53 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth1']['OUTPUT']['DNS'] == 2 or
@@ -704,7 +700,6 @@ if args.firewall and not (config['Interfaces']['eth0']['Firewall'] == 0 and
             # INPUT
             if ((config['FireWall']['eth2']['INPUT']['DNS'] == 2 or
                  config['Interfaces']['eth2']['Type'] == 'LAN') and config['FireWall']['eth2']['INPUT']['DNS'] != 0):
-                os.system('iptables -A FORWARD -i eth2 -p tcp --dport 53 -j ACCEPT')
                 os.system('iptables -A FORWARD -i eth2 -p udp --dport 53 -j ACCEPT')
                 # OUTPUT
             if ((config['FireWall']['eth2']['OUTPUT']['DNS'] == 2 or

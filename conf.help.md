@@ -158,7 +158,7 @@ Supposons un type LAN sur eth0, on auras donc IN et OUT en DHCP ce qui signifie 
 Les règles INPUT et OUTPUT sont configuré dans l'onglet serveur de firewall, celui se doit pour des raisons de sécurité
 de conserver le strict nécessaire permettant sa maintenance.
 
-Ceci représente donc les fonctions personnalisables qui s'ajoute en plus des fonctions de bases décrites dans le readme.txt. Vous trouverez ci-dessous un extrait de l'arborescence commenté.
+Ceci représente donc les fonctions personnalisables qui s'ajoute en plus des fonctions de bases décrites dans le readme.md. Vous trouverez ci-dessous un extrait de l'arborescence commenté.
 Si aucun port n'est spécifié pour le Firewall alors la règle concerne l'ensemble du protocole.
 
 Voici un exemple du fichier de configuration. Les informations se présentent sous forme d'une arborescence.

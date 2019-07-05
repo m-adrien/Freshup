@@ -101,7 +101,7 @@
     "eth1": {
       "INPUT": {
         "Established": 1,
-        "Ping": 1,
+        "Ping": 2,
         "DNS": 1,
         "HTTP": 1,
         "HTTPS": 1,
